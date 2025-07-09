@@ -1,0 +1,292 @@
+.container {
+  min-height: 100vh;
+  background-color: #f5f7fa;
+}
+
+.nav {
+  background-color: #182c53;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navContainer {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.navContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 4rem;
+}
+
+.navLeft {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.025em;
+}
+
+.logoutButton {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.625rem 1.25rem;
+  border: 1px solid #bf9c5e;
+  border-radius: 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1e1e1e;
+  background-color: #bf9c5e;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.logoutButton:hover {
+  background-color: #dabf89;
+  border-color: #dabf89;
+}
+
+.logoutButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
+}
+
+.logoutButton span {
+  position: relative;
+  z-index: 1;
+}
+
+.main {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.content {
+  padding: 1rem;
+}
+
+.tabContainer {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 1rem;
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
+}
+
+.tabNav {
+  display: flex;
+  gap: 1rem;
+  background-color: #ffffff;
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid #ced4da;
+}
+
+.tabButton {
+  position: relative;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: #6b7280;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tabButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 0.5rem;
+  background: #BF9C5E;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.tabButton span {
+  position: relative;
+  z-index: 1;
+}
+
+.tabButton.active {
+  color: #ffffff;
+  background-color: #182c53;
+}
+
+.tabButton.active::before {
+  opacity: 1;
+}
+
+.tabButton:not(.active):hover {
+  color: #182c53;
+  background-color: rgba(24, 44, 83, 0.05);
+}
+
+.tabButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+}
+
+.tabIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  position: relative;
+  z-index: 1;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  border: 1px solid #ced4da;
+  transition: all 0.2s ease-in-out;
+  backdrop-filter: blur(10px);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 8px -1px rgba(0, 0, 0, 0.05),
+    0 12px 17px -3px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.cardHeader {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #ced4da;
+  background-color: #f5f7fa;
+}
+
+.cardTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #182c53;
+  letter-spacing: -0.025em;
+}
+
+.table {
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.tableHeader {
+  background-color: #f5f7fa;
+}
+
+.tableHeaderCell {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #182c53;
+}
+
+.tableBody {
+  background-color: transparent;
+}
+
+.tableRow {
+  border-top: 1px solid #ced4da;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.tableRow:hover {
+  background-color: #f5f7fa;
+}
+
+.tableCell {
+  padding: 1rem 1.5rem;
+  white-space: nowrap;
+}
+
+.userName {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1e1e1e;
+}
+
+.tagContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  background-color: #dabf89;
+  color: #1e1e1e;
+}
+
+.tag:hover {
+  background-color: #bf9c5e;
+}
+
+.tag.course {
+  background-color: #eef2ff;
+  color: #3730a3;
+}
+
+.tag.course:hover {
+  background-color: #e0e7ff;
+}
+
+.tag.ta {
+  background-color: #f3e8ff;
+  color: #6b21a8;
+}
+
+.tag.ta:hover {
+  background-color: #e9d5ff;
+}
+
+.tag.lecturer {
+  background-color: #fce7f3;
+  color: #be185d;
+}
+
+.tag.lecturer:hover {
+  background-color: #fbcfe8;
+}
+
+.balance {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.balance.positive {
+  color: #059669;
+}
+
+.balance.negative {
+  color: #e63946;
+} 
