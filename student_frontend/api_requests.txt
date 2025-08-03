@@ -1,0 +1,395 @@
+STUDENT MANAGEMENT SYSTEM - API REQUESTS
+=========================================
+
+This file documents all the JSON data structures sent TO the server from the frontend.
+
+1. LOGIN REQUEST
+================
+
+Endpoint: POST /api/auth/login
+
+Request Body:
+{
+  "email": "string (VARCHAR(100) from students table)",
+  "password": "string (not stored in schema - authentication only)"
+}
+
+Example:
+{
+  "email": "nana@student.com",
+  "password": "1234"
+}
+
+Field Breakdown:
+| Field | Type | Schema Constraint | Example | Source |
+|-------|------|------------------|---------|---------|
+| email | string | VARCHAR(100), UNIQUE, NOT NULL | "nana@student.com" | Form input |
+| password | string | Not stored in schema | "1234" | Form input |
+
+2. COURSE REGISTRATION REQUEST
+==============================
+
+Endpoint: POST /api/courses/register
+
+Request Body:
+{
+  "studentId": "string (TEXT from students table)",
+  "semesterId": "integer (SERIAL from semesters table)",
+  "courses": [
+    {
+      "courseId": "string (TEXT from courses table)",
+      "enrollmentDate": "string (DATE format YYYY-MM-DD)"
+    }
+  ]
+}
+
+Example:
+{
+  "studentId": "STU001",
+  "semesterId": 1,
+  "courses": [
+    {
+      "courseId": "CS201",
+      "enrollmentDate": "2024-01-15"
+    },
+    {
+      "courseId": "MATH301",
+      "enrollmentDate": "2024-01-15"
+    }
+  ]
+}
+
+Field Breakdown:
+| Field | Type | Schema Constraint | Example | Source |
+|-------|------|------------------|---------|---------|
+| studentId | string | TEXT, NOT NULL, FK to students(id) | "STU001" | Auth context |
+| semesterId | integer | SERIAL, NOT NULL, FK to semesters(id) | 1 | Form dropdown |
+| courses | array | Array of course enrollments | [...] | Form checkboxes |
+| courses[].courseId | string | TEXT, NOT NULL, FK to courses(id) | "CS201" | Course selection |
+| courses[].enrollmentDate | string | DATE DEFAULT CURRENT_DATE | "2024-01-15" | Generated |
+
+Backend Database Operations:
+1. Insert into course_enrollments table
+2. Update fees table with total course fees
+3. Validate student, semester, and course availability
+
+3. FEE PAYMENT REQUEST
+======================
+
+Endpoint: POST /api/payments
+
+Request Body:
+{
+  "studentId": "string (TEXT from students table)",
+  "feeId": "integer (SERIAL from fees table)",
+  "amount": "decimal (NUMERIC(10,2) from payments table)",
+  "paymentMethod": "string (VARCHAR(50) from payments table)",
+  "paymentDate": "timestamp (TIMESTAMP from payments table)",
+  "transactionId": "string (VARCHAR(100) UNIQUE from payments table)",
+  "status": "string (VARCHAR(20) from payments table)",
+  "description": "string (TEXT from payments table)"
+}
+
+Example:
+{
+  "studentId": "STU001",
+  "feeId": 1,
+  "amount": 500.00,
+  "paymentMethod": "credit_card",
+  "paymentDate": "2024-01-15T10:30:00Z",
+  "transactionId": "TXN1705312200000",
+  "status": "completed",
+  "description": "Tuition Fee Payment"
+}
+
+Field Breakdown:
+| Field | Type | Schema Constraint | Example | Source |
+|-------|------|------------------|---------|---------|
+| studentId | string | TEXT, NOT NULL, FK to students(id) | "STU001" | Auth context |
+| feeId | integer | SERIAL, NOT NULL, FK to fees(id) | 1 | Fee lookup |
+| amount | decimal | NUMERIC(10,2), NOT NULL | 500.00 | Form input |
+| paymentMethod | string | VARCHAR(50), NOT NULL | "credit_card" | Form radio |
+| paymentDate | timestamp | TIMESTAMP DEFAULT CURRENT_TIMESTAMP | "2024-01-15T10:30:00Z" | Generated |
+| transactionId | string | VARCHAR(100), UNIQUE | "TXN1705312200000" | Generated |
+| status | string | VARCHAR(20), DEFAULT 'completed' | "completed" | Default |
+| description | string | TEXT | "Tuition Fee Payment" | Form input |
+
+Additional Form Data (Not Stored):
+- cardNumber: "1234 5678 9012 3456" (Payment processing only)
+- cardHolderName: "John Doe" (Payment processing only)
+- expiryDate: "12/25" (Payment processing only)
+- cvv: "123" (Payment processing only)
+
+Backend Database Operations:
+1. Insert into payments table
+2. Update fees.amount_paid in fees table
+3. Generate transaction ID
+4. Process payment through payment gateway
+
+4. STUDENT PROFILE UPDATE REQUEST
+=================================
+
+Endpoint: PUT /api/student/profile
+
+Request Body:
+{
+  "studentId": "string (TEXT from students table)",
+  "name": "string (VARCHAR(100) from students table)",
+  "email": "string (VARCHAR(100) UNIQUE from students table)",
+  "dateOfBirth": "string (DATE from students table)"
+}
+
+Example:
+{
+  "studentId": "STU001",
+  "name": "John Doe",
+  "email": "john.doe@university.edu",
+  "dateOfBirth": "1995-03-15"
+}
+
+Field Breakdown:
+| Field | Type | Schema Constraint | Example | Source |
+|-------|------|------------------|---------|---------|
+| studentId | string | TEXT, PRIMARY KEY | "STU001" | Auth context |
+| name | string | VARCHAR(100), NOT NULL | "John Doe" | Form input |
+| email | string | VARCHAR(100), UNIQUE, NOT NULL | "john.doe@university.edu" | Form input |
+| dateOfBirth | string | DATE, NOT NULL | "1995-03-15" | Form input |
+
+5. COURSE DROP REQUEST
+======================
+
+Endpoint: DELETE /api/courses/enrollment
+
+Request Body:
+{
+  "studentId": "string (TEXT from students table)",
+  "courseId": "string (TEXT from courses table)",
+  "semesterId": "integer (SERIAL from semesters table)",
+  "reason": "string (TEXT - optional)"
+}
+
+Example:
+{
+  "studentId": "STU001",
+  "courseId": "CS201",
+  "semesterId": 1,
+  "reason": "Schedule conflict"
+}
+
+Field Breakdown:
+| Field | Type | Schema Constraint | Example | Source |
+|-------|------|------------------|---------|---------|
+| studentId | string | TEXT, NOT NULL, FK to students(id) | "STU001" | Auth context |
+| courseId | string | TEXT, NOT NULL, FK to courses(id) | "CS201" | Course selection |
+| semesterId | integer | SERIAL, NOT NULL, FK to semesters(id) | 1 | Semester context |
+| reason | string | TEXT | "Schedule conflict" | Form input |
+
+Backend Database Operations:
+1. Update course_enrollments.status to 'dropped'
+2. Update course_enrollments.grade to 'W' (withdrawal)
+3. Recalculate fees if necessary
+
+6. PASSWORD CHANGE REQUEST
+==========================
+
+Endpoint: PUT /api/student/password
+
+Request Body:
+{
+  "studentId": "string (TEXT from students table)",
+  "currentPassword": "string (not stored in schema)",
+  "newPassword": "string (not stored in schema)",
+  "confirmPassword": "string (not stored in schema)"
+}
+
+Example:
+{
+  "studentId": "STU001",
+  "currentPassword": "1234",
+  "newPassword": "newpassword123",
+  "confirmPassword": "newpassword123"
+}
+
+Field Breakdown:
+| Field | Type | Schema Constraint | Example | Source |
+|-------|------|------------------|---------|---------|
+| studentId | string | TEXT, PRIMARY KEY | "STU001" | Auth context |
+| currentPassword | string | Not stored in schema | "1234" | Form input |
+| newPassword | string | Not stored in schema | "newpassword123" | Form input |
+| confirmPassword | string | Not stored in schema | "newpassword123" | Form input |
+
+7. CONTACT LECTURER REQUEST
+===========================
+
+Endpoint: POST /api/contact/lecturer
+
+Request Body:
+{
+  "studentId": "string (TEXT from students table)",
+  "lecturerId": "string (TEXT from lecturers table)",
+  "subject": "string (TEXT)",
+  "message": "string (TEXT)",
+  "courseId": "string (TEXT from courses table)"
+}
+
+Example:
+{
+  "studentId": "STU001",
+  "lecturerId": "LEC001",
+  "subject": "Question about Assignment 3",
+  "message": "I have a question about the requirements for Assignment 3...",
+  "courseId": "CS101"
+}
+
+Field Breakdown:
+| Field | Type | Schema Constraint | Example | Source |
+|-------|------|------------------|---------|---------|
+| studentId | string | TEXT, NOT NULL, FK to students(id) | "STU001" | Auth context |
+| lecturerId | string | TEXT, NOT NULL, FK to lecturers(id) | "LEC001" | Lecturer selection |
+| subject | string | TEXT | "Question about Assignment 3" | Form input |
+| message | string | TEXT | "I have a question..." | Form input |
+| courseId | string | TEXT, NOT NULL, FK to courses(id) | "CS101" | Course context |
+
+8. FEE INQUIRY REQUEST
+=======================
+
+Endpoint: GET /api/student/fees/inquiry
+
+Query Parameters:
+{
+  "studentId": "string (TEXT from students table)",
+  "semesterId": "integer (SERIAL from semesters table)",
+  "academicYear": "string (VARCHAR(9) from fees table)"
+}
+
+Example:
+{
+  "studentId": "STU001",
+  "semesterId": 1,
+  "academicYear": "2024-2025"
+}
+
+Field Breakdown:
+| Field | Type | Schema Constraint | Example | Source |
+|-------|------|------------------|---------|---------|
+| studentId | string | TEXT, NOT NULL, FK to students(id) | "STU001" | Auth context |
+| semesterId | integer | SERIAL, NOT NULL, FK to semesters(id) | 1 | Semester selection |
+| academicYear | string | VARCHAR(9) | "2024-2025" | Academic year |
+
+9. COURSE PROGRESS UPDATE REQUEST
+==================================
+
+Endpoint: PUT /api/courses/progress
+
+Request Body:
+{
+  "studentId": "string (TEXT from students table)",
+  "courseId": "string (TEXT from courses table)",
+  "semesterId": "integer (SERIAL from semesters table)",
+  "progress": "integer (0-100)",
+  "grade": "string (VARCHAR(2) from course_enrollments table)"
+}
+
+Example:
+{
+  "studentId": "STU001",
+  "courseId": "CS101",
+  "semesterId": 1,
+  "progress": 85,
+  "grade": "A"
+}
+
+Field Breakdown:
+| Field | Type | Schema Constraint | Example | Source |
+|-------|------|------------------|---------|---------|
+| studentId | string | TEXT, NOT NULL, FK to students(id) | "STU001" | Auth context |
+| courseId | string | TEXT, NOT NULL, FK to courses(id) | "CS101" | Course selection |
+| semesterId | integer | SERIAL, NOT NULL, FK to semesters(id) | 1 | Semester context |
+| progress | integer | 0-100 range | 85 | Form input |
+| grade | string | VARCHAR(2) | "A" | Form input |
+
+Backend Database Operations:
+1. Update course_enrollments.progress
+2. Update course_enrollments.grade
+
+10. AUTHENTICATION HEADERS
+==========================
+
+All API requests should include:
+Headers: {
+  "Authorization": "Bearer <jwt_token>",
+  "Content-Type": "application/json"
+}
+
+Example:
+{
+  "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "Content-Type": "application/json"
+}
+
+11. ERROR HANDLING
+==================
+
+All requests should handle these common error responses:
+
+400 Bad Request:
+{
+  "error": "Validation failed",
+  "code": "VALIDATION_ERROR",
+  "details": ["Field 'email' is required"]
+}
+
+401 Unauthorized:
+{
+  "error": "Invalid credentials",
+  "code": "INVALID_CREDENTIALS"
+}
+
+403 Forbidden:
+{
+  "error": "Access denied",
+  "code": "ACCESS_DENIED"
+}
+
+404 Not Found:
+{
+  "error": "Student not found",
+  "code": "STUDENT_NOT_FOUND"
+}
+
+409 Conflict:
+{
+  "error": "Already enrolled in course",
+  "code": "ALREADY_ENROLLED"
+}
+
+500 Internal Server Error:
+{
+  "error": "Internal server error",
+  "code": "INTERNAL_ERROR"
+}
+
+12. SUCCESS RESPONSE FORMAT
+===========================
+
+All successful requests should return:
+{
+  "success": true,
+  "data": { /* response data */ },
+  "message": "Operation completed successfully"
+}
+
+13. DATA VALIDATION RULES
+==========================
+
+- All amounts must be positive decimals
+- Dates must be in ISO 8601 format (YYYY-MM-DD)
+- Email addresses must be valid format
+- Student IDs must exist in students table
+- Course IDs must exist in courses table
+- Semester IDs must exist in semesters table
+- Payment methods: "credit_card", "bank_transfer", "cash"
+- Payment status: "pending", "completed", "failed", "refunded"
+- Course status: "active", "dropped", "completed"
+- Grades: "A", "B", "C", "D", "F", "W" (withdrawal)
+- Progress: 0-100 integer values 
