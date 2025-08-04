@@ -21,16 +21,13 @@ public class UserService implements IUserService {
     private final ModelMapper modelMapper;
 
     @Override
-    public UserDto authenticateUser(String email, String password) {
-        if(StringUtils.isBlank(email) || StringUtils.isBlank(password)){
-            throw new ResourceNotFoundException("Username or password is empty");
+    public UserDto authenticateUser(String id, String password) {
+        if(StringUtils.isBlank(id) || StringUtils.isBlank(password)){
+            throw new ResourceNotFoundException("Id or password is empty");
         }
 
-        Users user = userRepository.findByEmail(email);
-
-        if (user == null){
-            throw new UserNotFoundException("User does not exists");
-        }
+        Users user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User does not exist"));
 
         if (passwordEncoder.matches(password, user.getPassword())){
             return modelMapper.map(user, UserDto.class);
@@ -40,33 +37,11 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public Object login(String email, String password) {
-        UserDto authenticatedUser = authenticateUser(email, password);
-        
-        // Return a login response object with user info and token (mock)
-        return new Object() {
-            public final String token = "mock-jwt-token-" + System.currentTimeMillis();
-            public final UserDto user = authenticatedUser;
-            public final String message = "Login successful";
-        };
-    }
-
-    @Override
-    public UserDto saveUser(String username, String email, String password) {
-        boolean usernameTaken = userRepository.existsByUsername(username);
-        if (usernameTaken){
-            throw new AlreadyExistsException("Username has already been taken!");
+    public UserDto saveUser(String id, String password) {
+        if (StringUtils.isBlank(id) || StringUtils.isBlank(password)){
+            throw new ResourceNotFoundException("Id or Password is missing");
         }
-        boolean emailTaken = userRepository.existsByEmail(email);
-        if (emailTaken){
-            throw new AlreadyExistsException("Email has already been taken!");
-        }
-
-        if (StringUtils.isBlank(username) || StringUtils.isBlank(email) || StringUtils.isBlank(password)){
-            throw new ResourceNotFoundException("Username or Email or Password is missing");
-        }
-
-        Users user = new Users(username, email);
+        Users user = new Users(id);
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
 

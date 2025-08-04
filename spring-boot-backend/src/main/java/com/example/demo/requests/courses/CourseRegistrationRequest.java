@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 public class CourseRegistrationRequest {
     private String studentId;
-    private Integer semesterId;
+    private Long semesterId;
     private List<CourseEnrollmentRequest> courses;
     
     @Data

@@ -16,14 +16,10 @@ import lombok.Setter;
 @Entity
 public class Users {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String username;
-    private String email;
+    private String id;
     private String password;
 
-    public Users(String username, String email){
-        this.username = username;
-        this.email = email;
+    public Users(String id){
+        this.id = id;
     }
 }

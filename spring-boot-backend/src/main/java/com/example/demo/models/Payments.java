@@ -42,5 +42,5 @@ public class Payments {
     private Students student;
 
     @ManyToOne
-    private Fees fee;
+    private Fees fees;
 }

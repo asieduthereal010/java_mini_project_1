@@ -16,6 +16,6 @@ public class StudentDashboardDTO {
     private String email;
     private LocalDate dateOfBirth;
     private List<CourseEnrollmentDTO> courses;
-    private FeesOverviewDTO fees;
+    private FeesDTO fees;
     private SemesterDTO semester;
 } 

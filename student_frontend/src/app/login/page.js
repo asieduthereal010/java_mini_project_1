@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
-    email: '',
+    id: '',
     password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +27,7 @@ export default function LoginPage() {
 
     try {
       // Check for dummy credentials
-      if (formData.email === 'nana@student.com' && formData.password === '1234') {
+      if (formData.id === 'STU001' && formData.password === '1234') {
         // Simulate successful login
         const mockUserData = {
           id: 'STU001',
@@ -67,7 +67,7 @@ export default function LoginPage() {
           <div className="mt-4 p-3 bg-blue-50 rounded-md">
             <p className="text-xs text-blue-700 text-center">
               <strong>Demo Credentials:</strong><br />
-              Email: nana@student.com<br />
+              Id: STU001<br />
               Password: 1234
             </p>
           </div>
@@ -77,17 +77,17 @@ export default function LoginPage() {
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email" className="sr-only">
-                Email address
+                Student Id
               </label>
               <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
+                id="id"
+                name="id"
+                type="id"
+                autoComplete="id"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={formData.email}
+                placeholder="Enter student Id"
+                value={formData.id}
                 onChange={handleInputChange}
               />
             </div>

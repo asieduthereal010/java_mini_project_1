@@ -23,7 +23,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> getUser(@RequestBody UserRequest request){
         try {
-            UserDto userDto = userService.authenticateUser(request.getEmail(), request.getPassword());
+            UserDto userDto = userService.authenticateUser(request.getId(), request.getPassword());
             return ResponseEntity.ok(new ApiResponse("Found", userDto));
         } catch (ResourceNotFoundException | IncorrectPasswordException e) {
             return ResponseEntity.status(BAD_REQUEST)
@@ -40,7 +40,7 @@ public class UserController {
     @PostMapping("/create")
     public ResponseEntity<ApiResponse> createUser(@RequestBody UserRequest request){
         try {
-            UserDto userDto = userService.saveUser(request.getUsername(), request.getEmail(), request.getPassword());
+            UserDto userDto = userService.saveUser(request.getId(), request.getPassword());
             return ResponseEntity.ok(new ApiResponse("Created", userDto));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(BAD_REQUEST)

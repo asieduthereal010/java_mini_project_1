@@ -16,6 +16,9 @@ export default function FeePaymentPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [studentFees, setStudentFees] = useState(null);
+  const [studentId, setStudentId] = useState("STU001");
+  const [semesterId, setSemesterId] = useState(1);
+  const [academicYear, setAcademicYear] = useState("2023-2024");
   const router = useRouter();
 
   // Mock student fee data
@@ -28,7 +31,24 @@ export default function FeePaymentPage() {
 
   useEffect(() => {
     // Load student fee data
-    setStudentFees(mockStudentFees);
+    async function fetchFeeData(){
+      setLoading(true);
+      try{
+        const res = await fetch(`http://localhost:8080/api/fees/inquiry?studentId=${studentId}&semesterId=${semesterId}&academicYear=${academicYear}`)
+        if (!res.ok) {
+          console.log(res.statusText);
+        }
+        const json = await res.json();
+        setStudentFees(json.data);
+        console.log(json)
+
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchFeeData();
   }, []);
 
   const handleInputChange = (e) => {
@@ -77,6 +97,8 @@ export default function FeePaymentPage() {
 
     try {
       const paymentPayload = {
+        studentId,
+        feeId: studentFees.id,
         amount: parseFloat(paymentData.amount),
         paymentMethod: paymentData.paymentMethod,
         paymentDate: new Date().toISOString(),
@@ -85,7 +107,7 @@ export default function FeePaymentPage() {
       };
 
       // Simulate API call
-      const response = await fetch('/api/payments', {
+      const response = await fetch('http://localhost:8080/api/payments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
