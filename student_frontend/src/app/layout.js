@@ -201,7 +201,15 @@ export default function RootLayout({ children }) {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                   </button>
-                  <h1 className="text-xl font-semibold text-gray-900">Student Dashboard</h1>
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => router.push('/dashboard')}
+                    onKeyPress={e => { if (e.key === 'Enter' || e.key === ' ') router.push('/dashboard'); }}
+                    className="text-xl font-semibold text-gray-900 cursor-pointer hover:underline focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    Student Dashboard
+                  </span>
                 </div>
                 <div className="flex items-center space-x-4">
                   <button

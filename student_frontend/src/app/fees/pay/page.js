@@ -76,9 +76,7 @@ export default function FeePaymentPage() {
     }
 
     try {
-      // Simulate API call to backend
       const paymentPayload = {
-        studentId: studentFees.studentId,
         amount: parseFloat(paymentData.amount),
         paymentMethod: paymentData.paymentMethod,
         paymentDate: new Date().toISOString(),
@@ -106,7 +104,6 @@ export default function FeePaymentPage() {
           expiryDate: '',
           cvv: ''
         });
-        
         // Update local fee data
         setStudentFees(prev => ({
           ...prev,
@@ -302,7 +299,6 @@ export default function FeePaymentPage() {
             </form>
           </div>
         </div>
-
         {/* Fee Summary */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow-md p-6">
@@ -340,4 +336,4 @@ export default function FeePaymentPage() {
       </div>
     </div>
   );
-} 
+}

@@ -199,9 +199,18 @@ export default function CourseRegistrationPage() {
   return (
     <div>
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Course Registration</h1>
-        <p className="mt-2 text-gray-600">Select courses for the upcoming semester</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Course Registration</h1>
+          <p className="mt-2 text-gray-600">Select courses for the upcoming semester</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => router.push('/dashboard')}
+          className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+        >
+          Back
+        </button>
       </div>
 
       {error && (
