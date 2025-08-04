@@ -187,7 +187,7 @@ export default function CourseRegistrationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="flex items-center justify-center py-12">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading available courses...</p>
@@ -197,163 +197,164 @@ export default function CourseRegistrationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <button
-            onClick={() => router.back()}
-            className="text-indigo-600 hover:text-indigo-500 mb-4 flex items-center"
-          >
-            ← Back to Dashboard
-          </button>
+    <div>
+      {/* Page Header */}
+      <div className="mb-8 flex items-center justify-between">
+        <div>
           <h1 className="text-3xl font-bold text-gray-900">Course Registration</h1>
           <p className="mt-2 text-gray-600">Select courses for the upcoming semester</p>
         </div>
+        <button
+          type="button"
+          onClick={() => router.push('/dashboard')}
+          className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+        >
+          Back
+        </button>
+      </div>
 
-        {error && (
-          <div className="mb-6 rounded-md bg-red-50 p-4">
-            <div className="text-sm text-red-700">{error}</div>
-          </div>
-        )}
+      {error && (
+        <div className="mb-6 rounded-md bg-red-50 p-4">
+          <div className="text-sm text-red-700">{error}</div>
+        </div>
+      )}
 
-        {success && (
-          <div className="mb-6 rounded-md bg-green-50 p-4">
-            <div className="text-sm text-green-700">{success}</div>
-          </div>
-        )}
+      {success && (
+        <div className="mb-6 rounded-md bg-green-50 p-4">
+          <div className="text-sm text-green-700">{success}</div>
+        </div>
+      )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Course Selection */}
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Available Courses</h2>
-                
-                {/* Semester Selection */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Select Semester
-                  </label>
-                  <select
-                    value={selectedSemester}
-                    onChange={(e) => handleSemesterChange(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                  >
-                    {semesters.map((semester) => (
-                      <option key={semester.id} value={semester.id}>
-                        {semester.name} {!semester.is_active && '(Not Active)'}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+      <form onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Course Selection */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Available Courses</h2>
+              
+              {/* Semester Selection */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Semester
+                </label>
+                <select
+                  value={selectedSemester}
+                  onChange={(e) => handleSemesterChange(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  {semesters.map((semester) => (
+                    <option key={semester.id} value={semester.id}>
+                      {semester.name} {!semester.is_active && '(Not Active)'}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-                {/* Course List */}
-                <div className="space-y-4">
-                  {getAvailableCoursesForSemester().map((course) => (
-                    <div key={course.id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-start space-x-4">
-                        <input
-                          type="checkbox"
-                          id={course.id}
-                          checked={selectedCourses.includes(course.id)}
-                          onChange={() => handleCourseSelection(course.id)}
-                          className="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                        />
-                        <div className="flex-1">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h3 className="text-lg font-medium text-gray-900">{course.name}</h3>
-                              <p className="text-sm text-gray-600">Course Code: {course.code}</p>
-                              <p className="text-sm text-gray-600">Credits: {course.credits}</p>
-                              <p className="text-sm text-gray-600 mt-2">{course.description}</p>
-                              <p className="text-sm text-gray-600 mt-1">
-                                Lecturer: {course.lecturer.name}
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-lg font-medium text-gray-900">${course.fee.toFixed(2)}</p>
-                              <p className="text-sm text-gray-600">
-                                {course.enrolled}/{course.capacity} enrolled
-                              </p>
-                              <div className="mt-1">
-                                <div className="w-20 bg-gray-200 rounded-full h-2">
-                                  <div
-                                    className="bg-indigo-600 h-2 rounded-full"
-                                    style={{ width: `${(course.enrolled / course.capacity) * 100}%` }}
-                                  ></div>
-                                </div>
+              {/* Course List */}
+              <div className="space-y-4">
+                {getAvailableCoursesForSemester().map((course) => (
+                  <div key={course.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-start space-x-4">
+                      <input
+                        type="checkbox"
+                        id={course.id}
+                        checked={selectedCourses.includes(course.id)}
+                        onChange={() => handleCourseSelection(course.id)}
+                        className="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                      />
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="text-lg font-medium text-gray-900">{course.name}</h3>
+                            <p className="text-sm text-gray-600">Course Code: {course.code}</p>
+                            <p className="text-sm text-gray-600">Credits: {course.credits}</p>
+                            <p className="text-sm text-gray-600 mt-2">{course.description}</p>
+                            <p className="text-sm text-gray-600 mt-1">
+                              Lecturer: {course.lecturer.name}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-lg font-medium text-gray-900">${course.fee.toFixed(2)}</p>
+                            <p className="text-sm text-gray-600">
+                              {course.enrolled}/{course.capacity} enrolled
+                            </p>
+                            <div className="mt-1">
+                              <div className="w-20 bg-gray-200 rounded-full h-2">
+                                <div
+                                  className="bg-indigo-600 h-2 rounded-full"
+                                  style={{ width: `${(course.enrolled / course.capacity) * 100}%` }}
+                                ></div>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  ))}
+                  </div>
+                ))}
+              </div>
+
+              {getAvailableCoursesForSemester().length === 0 && (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No courses available for the selected semester.</p>
                 </div>
-
-                {getAvailableCoursesForSemester().length === 0 && (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500">No courses available for the selected semester.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Registration Summary */}
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Registration Summary</h3>
-                
-                {selectedCourses.length === 0 ? (
-                  <p className="text-gray-500">No courses selected</p>
-                ) : (
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-sm font-medium text-gray-700">Selected Courses:</p>
-                      <ul className="mt-2 space-y-2">
-                        {getSelectedCoursesData().map((course) => (
-                          <li key={course.id} className="flex justify-between text-sm">
-                            <span className="text-gray-600">{course.code}</span>
-                            <span className="font-medium">${course.fee.toFixed(2)}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    
-                    <div className="border-t pt-4">
-                      <div className="flex justify-between">
-                        <span className="text-lg font-medium text-gray-900">Total Fee:</span>
-                        <span className="text-lg font-bold text-indigo-600">
-                          ${calculateTotalFee().toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={submitting}
-                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {submitting ? (
-                        <div className="flex items-center justify-center">
-                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Registering...
-                        </div>
-                      ) : (
-                        'Register for Selected Courses'
-                      )}
-                    </button>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
           </div>
-        </form>
-      </div>
+
+          {/* Registration Summary */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Registration Summary</h3>
+              
+              {selectedCourses.length === 0 ? (
+                <p className="text-gray-500">No courses selected</p>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Selected Courses:</p>
+                    <ul className="mt-2 space-y-2">
+                      {getSelectedCoursesData().map((course) => (
+                        <li key={course.id} className="flex justify-between text-sm">
+                          <span className="text-gray-600">{course.code}</span>
+                          <span className="font-medium">${course.fee.toFixed(2)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  <div className="border-t pt-4">
+                    <div className="flex justify-between">
+                      <span className="text-lg font-medium text-gray-900">Total Fee:</span>
+                      <span className="text-lg font-bold text-indigo-600">
+                        ${calculateTotalFee().toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {submitting ? (
+                      <div className="flex items-center justify-center">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Registering...
+                      </div>
+                    ) : (
+                      'Register for Selected Courses'
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
   );
 } 
