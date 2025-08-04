@@ -18,8 +18,17 @@ const geistMono = Geist_Mono({
 export default function RootLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [studentData, setStudentData] = useState(null);
+  const [showFeeModal, setShowFeeModal] = useState(false);
+  const [academicYear, setAcademicYear] = useState('');
+  const [semester, setSemester] = useState('');
   const router = useRouter();
   const pathname = usePathname();
+
+  // Generate academic year options from 2020 to 2025
+  const academicYearOptions = [];
+  for (let year = 2020; year <= 2025; year++) {
+    academicYearOptions.push(`${year}-${year + 1}`);
+  }
 
   // Check if user is authenticated
   const isAuthenticated = () => {
@@ -56,7 +65,23 @@ export default function RootLayout({ children }) {
   };
 
   const handlePayFees = () => {
-    router.push('/fees/pay');
+    setShowFeeModal(true);
+  };
+
+  const handleFeeModalSubmit = () => {
+    if (academicYear && semester) {
+      // Navigate to fees page with query parameters
+      router.push(`/fees/pay?academicYear=${encodeURIComponent(academicYear)}&semester=${semester}`);
+      setShowFeeModal(false);
+      setAcademicYear('');
+      setSemester('');
+    }
+  };
+
+  const handleFeeModalCancel = () => {
+    setShowFeeModal(false);
+    setAcademicYear('');
+    setSemester('');
   };
 
   const handleViewFeeHistory = () => {
@@ -173,12 +198,91 @@ export default function RootLayout({ children }) {
     );
   };
 
+  // Fee Payment Modal Component
+  const FeePaymentModal = () => {
+    if (!showFeeModal) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium text-gray-900">Fee Payment Details</h3>
+            <button
+              onClick={handleFeeModalCancel}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="academicYear" className="block text-sm font-medium text-gray-700 mb-2">
+                Academic Year
+              </label>
+              <select
+                id="academicYear"
+                value={academicYear}
+                onChange={(e) => setAcademicYear(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                required
+              >
+                <option value="">Select Academic Year</option>
+                {academicYearOptions.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label htmlFor="semester" className="block text-sm font-medium text-gray-700 mb-2">
+                Semester
+              </label>
+              <select
+                id="semester"
+                value={semester}
+                onChange={(e) => setSemester(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                required
+              >
+                <option value="">Select Semester</option>
+                <option value="1">Semester 1</option>
+                <option value="2">Semester 2</option>
+              </select>
+            </div>
+          </div>
+          
+          <div className="flex justify-end space-x-3 mt-6">
+            <button
+              onClick={handleFeeModalCancel}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleFeeModalSubmit}
+              disabled={!academicYear || !semester}
+              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-md transition-colors"
+            >
+              Continue to Payment
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // If not authenticated or not a dashboard page, render without navigation
   if (!isAuthenticated() || !shouldShowDashboardLayout()) {
     return (
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           {children}
+          <FeePaymentModal />
         </body>
       </html>
     );
@@ -248,6 +352,7 @@ export default function RootLayout({ children }) {
             </div>
           </div>
         </div>
+        <FeePaymentModal />
       </body>
     </html>
   );

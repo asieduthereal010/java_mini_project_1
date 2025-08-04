@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 export default function FeePaymentPage() {
+  const searchParams = useSearchParams();
   const [paymentData, setPaymentData] = useState({
     amount: '',
     paymentMethod: 'credit_card',
@@ -16,9 +18,6 @@ export default function FeePaymentPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [studentFees, setStudentFees] = useState(null);
-  const [studentId, setStudentId] = useState("STU001");
-  const [semesterId, setSemesterId] = useState(1);
-  const [academicYear, setAcademicYear] = useState("2023-2024");
   const router = useRouter();
 
   // Mock student fee data
@@ -32,6 +31,9 @@ export default function FeePaymentPage() {
   useEffect(() => {
     // Load student fee data
     async function fetchFeeData(){
+      const studentId = localStorage.getItem("studentId")
+      const academicYear = searchParams.get('academicYear');
+      const semesterId = searchParams.get('semester');
       setLoading(true);
       try{
         const res = await fetch(`http://localhost:8080/api/fees/inquiry?studentId=${studentId}&semesterId=${semesterId}&academicYear=${academicYear}`)

@@ -20,40 +20,103 @@ export default function LoginPage() {
     }));
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
+  //   setError('');
+  //
+  //   try {
+  //     // Check for dummy credentials
+  //     if (formData.id === 'STU001' && formData.password === '1234') {
+  //       // Simulate successful login
+  //       const mockUserData = {
+  //         id: 'STU001',
+  //         name: 'Nana Asiedu',
+  //         email: 'nana@student.com',
+  //         role: 'student'
+  //       };
+  //
+  //       // Store user data in localStorage
+  //       localStorage.setItem('userToken', 'dummy-token-12345');
+  //       localStorage.setItem('userData', JSON.stringify(mockUserData));
+  //       localStorage.setItem("studentId", mockUserData.id);
+  //
+  //       // Redirect to dashboard
+  //       router.push('/dashboard');
+  //     } else {
+  //       // Invalid credentials
+  //       setError('Invalid email or password. Please use nana@student.com / 1234');
+  //     }
+  //   } catch (err) {
+  //     setError('Network error. Please try again.');
+  //     console.error('Login error:', err);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    try {
-      // Check for dummy credentials
-      if (formData.id === 'STU001' && formData.password === '1234') {
-        // Simulate successful login
-        const mockUserData = {
-          id: 'STU001',
-          name: 'Nana Asiedu',
-          email: 'nana@student.com',
-          role: 'student'
-        };
-        
-        // Store user data in localStorage
+    if (formData.id === 'STU001' && formData.password === '1234') {
+      // Simulate successful login
+      const mockUserData = {
+        id: 'STU001',
+        name: 'Nana Asiedu',
+        email: 'nana@student.com',
+        role: 'student'
+      };
+
+      // Store user data in localStorage
+      localStorage.setItem('userToken', 'dummy-token-12345');
+      localStorage.setItem('userData', JSON.stringify(mockUserData));
+      localStorage.setItem("studentId", mockUserData.id);
+
+      // Redirect to dashboard
+      router.push('/dashboard');
+      setIsLoading(false);
+      return
+    }
+
+    try{
+      const res = await fetch("http://localhost:8080/api/auth/login", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (!res.ok) {
+        console.log(res.statusText);
+      }
+
+      const json = await res.json();
+      console.log(json);
+
+      if (!json.success) {
+        setError(json.error);
+      }
+      else {
         localStorage.setItem('userToken', 'dummy-token-12345');
-        localStorage.setItem('userData', JSON.stringify(mockUserData));
-        
+        localStorage.setItem('userData', JSON.stringify(json.data));
+        localStorage.setItem("studentId", json.data.id);
+
         // Redirect to dashboard
         router.push('/dashboard');
-      } else {
-        // Invalid credentials
-        setError('Invalid email or password. Please use nana@student.com / 1234');
       }
-    } catch (err) {
-      setError('Network error. Please try again.');
-      console.error('Login error:', err);
-    } finally {
+
+
+    } catch (err){
+      console.log(err);
+    }
+    finally {
       setIsLoading(false);
     }
-  };
-
+  }
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">

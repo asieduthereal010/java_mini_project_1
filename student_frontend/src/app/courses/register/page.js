@@ -112,9 +112,10 @@ export default function CourseRegistrationPage() {
   useEffect(() => {
     // Simulate API calls
     const fetchData = async () => {
+      const studentId = localStorage.getItem("studentId");
       try {
         setLoading(true);
-        const res = await fetch("http://localhost:8080/api/courses/available?studentId=STU001");
+        const res = await fetch("http://localhost:8080/api/courses/available?studentId=" + studentId);
         if (!res.ok) {
           console.log("Didn't work")
         }

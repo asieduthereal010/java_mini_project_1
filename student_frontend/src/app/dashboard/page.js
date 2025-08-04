@@ -66,8 +66,9 @@ export default function Dashboard() {
   useEffect(() =>{
     async function loadStudentData() {
       setLoading(true);
+      const studentId = localStorage.getItem("studentId")
       try{
-        const res = await fetch("http://localhost:8080/api/student/dashboard?studentId=STU010");
+        const res = await fetch("http://localhost:8080/api/student/dashboard?studentId=" + studentId);
         if (!res.ok){
             console.log("Didn't work")
         }
