@@ -55,13 +55,36 @@ export default function Dashboard() {
     }
   };
 
-  useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setStudentData(mockStudentData);
-      setLoading(false);
-    }, 1000);
-  }, []);
+  // useEffect(() => {
+  //   // Simulate API call
+  //   setTimeout(() => {
+  //     setStudentData(mockStudentData);
+  //     setLoading(false);
+  //   }, 1000);
+  // }, []);
+
+  useEffect(() =>{
+    async function loadStudentData() {
+      setLoading(true);
+      const studentId = localStorage.getItem("studentId")
+      try{
+        const res = await fetch("http://localhost:8080/api/student/dashboard?studentId=" + studentId);
+        if (!res.ok){
+            console.log("Didn't work")
+        }
+        const data = await res.json();
+        console.log(data);
+        setStudentData(data.data)
+      }
+      catch(err){
+        console.log(err);
+      }
+      finally{
+        setLoading(false);
+      }
+    }
+    loadStudentData();
+  }, [])
 
   if (loading) {
     return (
@@ -208,9 +231,9 @@ export default function Dashboard() {
                       <p className="text-sm text-gray-600">{course.lecturer.email}</p>
                       <p className="text-sm text-indigo-600">Teaching: {course.name}</p>
                     </div>
-                    <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                      Contact
-                    </button>
+                    {/*<button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">*/}
+                    {/*  Contact*/}
+                    {/*</button>*/}
                   </div>
                 </div>
               ))}

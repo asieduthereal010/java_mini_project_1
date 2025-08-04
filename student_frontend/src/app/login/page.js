@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
-    email: '',
+    id: '',
     password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -20,40 +20,103 @@ export default function LoginPage() {
     }));
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
+  //   setError('');
+  //
+  //   try {
+  //     // Check for dummy credentials
+  //     if (formData.id === 'STU001' && formData.password === '1234') {
+  //       // Simulate successful login
+  //       const mockUserData = {
+  //         id: 'STU001',
+  //         name: 'Nana Asiedu',
+  //         email: 'nana@student.com',
+  //         role: 'student'
+  //       };
+  //
+  //       // Store user data in localStorage
+  //       localStorage.setItem('userToken', 'dummy-token-12345');
+  //       localStorage.setItem('userData', JSON.stringify(mockUserData));
+  //       localStorage.setItem("studentId", mockUserData.id);
+  //
+  //       // Redirect to dashboard
+  //       router.push('/dashboard');
+  //     } else {
+  //       // Invalid credentials
+  //       setError('Invalid email or password. Please use nana@student.com / 1234');
+  //     }
+  //   } catch (err) {
+  //     setError('Network error. Please try again.');
+  //     console.error('Login error:', err);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    try {
-      // Check for dummy credentials
-      if (formData.email === 'nana@student.com' && formData.password === '1234') {
-        // Simulate successful login
-        const mockUserData = {
-          id: 'STU001',
-          name: 'Nana Asiedu',
-          email: 'nana@student.com',
-          role: 'student'
-        };
-        
-        // Store user data in localStorage
+    if (formData.id === 'STU001' && formData.password === '1234') {
+      // Simulate successful login
+      const mockUserData = {
+        id: 'STU001',
+        name: 'Nana Asiedu',
+        email: 'nana@student.com',
+        role: 'student'
+      };
+
+      // Store user data in localStorage
+      localStorage.setItem('userToken', 'dummy-token-12345');
+      localStorage.setItem('userData', JSON.stringify(mockUserData));
+      localStorage.setItem("studentId", mockUserData.id);
+
+      // Redirect to dashboard
+      router.push('/dashboard');
+      setIsLoading(false);
+      return
+    }
+
+    try{
+      const res = await fetch("http://localhost:8080/api/auth/login", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (!res.ok) {
+        console.log(res.statusText);
+      }
+
+      const json = await res.json();
+      console.log(json);
+
+      if (!json.success) {
+        setError(json.error);
+      }
+      else {
         localStorage.setItem('userToken', 'dummy-token-12345');
-        localStorage.setItem('userData', JSON.stringify(mockUserData));
-        
+        localStorage.setItem('userData', JSON.stringify(json.data));
+        localStorage.setItem("studentId", json.data.id);
+
         // Redirect to dashboard
         router.push('/dashboard');
-      } else {
-        // Invalid credentials
-        setError('Invalid email or password. Please use nana@student.com / 1234');
       }
-    } catch (err) {
-      setError('Network error. Please try again.');
-      console.error('Login error:', err);
-    } finally {
+
+
+    } catch (err){
+      console.log(err);
+    }
+    finally {
       setIsLoading(false);
     }
-  };
-
+  }
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -67,7 +130,7 @@ export default function LoginPage() {
           <div className="mt-4 p-3 bg-blue-50 rounded-md">
             <p className="text-xs text-blue-700 text-center">
               <strong>Demo Credentials:</strong><br />
-              Email: nana@student.com<br />
+              Id: STU001<br />
               Password: 1234
             </p>
           </div>
@@ -77,17 +140,17 @@ export default function LoginPage() {
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email" className="sr-only">
-                Email address
+                Student Id
               </label>
               <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
+                id="id"
+                name="id"
+                type="id"
+                autoComplete="id"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={formData.email}
+                placeholder="Enter student Id"
+                value={formData.id}
                 onChange={handleInputChange}
               />
             </div>

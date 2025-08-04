@@ -8,6 +8,7 @@ export default function PaymentHistoryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [totalPaid, setTotalPaid] = useState(0);
+  const [numberOfTransactions, setNumberOfTransactions] = useState(0);
   const router = useRouter();
 
   // Mock payment history data
@@ -54,25 +55,57 @@ export default function PaymentHistoryPage() {
     }
   ];
 
+  // useEffect(() => {
+  //   // Simulate API call to fetch payment history
+  //   const fetchPaymentHistory = async () => {
+  //     try {
+  //       // Simulate API delay
+  //       await new Promise(resolve => setTimeout(resolve, 1000));
+  //
+  //       setPayments(mockPayments);
+  //       const total = mockPayments.reduce((sum, payment) => sum + payment.amount, 0);
+  //       setTotalPaid(total);
+  //       setLoading(false);
+  //     } catch (err) {
+  //       setError('Failed to load payment history');
+  //       setLoading(false);
+  //     }
+  //   };
+  //
+  //   fetchPaymentHistory();
+  // }, []);
+
+
   useEffect(() => {
-    // Simulate API call to fetch payment history
+
     const fetchPaymentHistory = async () => {
+      const studentId = localStorage.getItem("studentId")
       try {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        setPayments(mockPayments);
-        const total = mockPayments.reduce((sum, payment) => sum + payment.amount, 0);
+        setLoading(true);
+
+        const res = await fetch("http://localhost:8080/api/student/payments?studentId=" + studentId);
+        if (!res.ok){
+          console.log("Didn't work")
+        }
+        const data = await res.json()
+
+        setPayments(data.data.payments);
+        const total = data.data.summary.totalPaid
         setTotalPaid(total);
-        setLoading(false);
+        setNumberOfTransactions(data.data.summary.totalTransactions);
+
+        console.log(data)
       } catch (err) {
+        console.log(err)
         setError('Failed to load payment history');
+      } finally {
         setLoading(false);
       }
     };
 
     fetchPaymentHistory();
   }, []);
+
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -213,7 +246,7 @@ export default function PaymentHistoryPage() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Transactions</p>
-              <p className="text-2xl font-bold text-gray-900">{payments.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{numberOfTransactions}</p>
             </div>
           </div>
         </div>

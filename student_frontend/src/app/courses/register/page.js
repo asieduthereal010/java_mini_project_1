@@ -7,7 +7,7 @@ export default function CourseRegistrationPage() {
   const [availableCourses, setAvailableCourses] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [semesters, setSemesters] = useState([]);
-  const [selectedSemester, setSelectedSemester] = useState('');
+  const [selectedSemester, setSelectedSemester] = useState(1);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -88,25 +88,52 @@ export default function CourseRegistrationPage() {
     }
   ];
 
+  // useEffect(() => {
+  //   // Simulate API calls
+  //   const fetchData = async () => {
+  //     try {
+  //       // Fetch semesters
+  //       setSemesters(mockSemesters);
+  //       setSelectedSemester(mockSemesters[0]?.id || '');
+  //
+  //       // Fetch available courses
+  //       setAvailableCourses(mockAvailableCourses);
+  //       setLoading(false);
+  //     } catch (err) {
+  //       setError('Failed to load course data');
+  //       setLoading(false);
+  //     }
+  //   };
+  //
+  //   fetchData();
+  // }, []);
+
+
   useEffect(() => {
     // Simulate API calls
     const fetchData = async () => {
+      const studentId = localStorage.getItem("studentId");
       try {
-        // Fetch semesters
-        setSemesters(mockSemesters);
-        setSelectedSemester(mockSemesters[0]?.id || '');
-        
+        setLoading(true);
+        const res = await fetch("http://localhost:8080/api/courses/available?studentId=" + studentId);
+        if (!res.ok) {
+          console.log("Didn't work")
+        }
+        const data = await res.json();
+        console.log(data);
+        setSemesters(data.data.semesters);
         // Fetch available courses
-        setAvailableCourses(mockAvailableCourses);
-        setLoading(false);
+        setAvailableCourses(data.data.availableCourses);
       } catch (err) {
         setError('Failed to load course data');
+      } finally {
         setLoading(false);
       }
     };
 
     fetchData();
   }, []);
+
 
   const handleCourseSelection = (courseId) => {
     setSelectedCourses(prev => {
@@ -154,7 +181,7 @@ export default function CourseRegistrationPage() {
         }))
       };
 
-      const response = await fetch('/api/courses/register', {
+      const response = await fetch('http://localhost:8080/api/courses/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -171,7 +198,7 @@ export default function CourseRegistrationPage() {
         }, 2000);
       } else {
         const errorData = await response.json();
-        setError(errorData.message || 'Registration failed. Please try again.');
+        setError(errorData.data || 'Registration failed. Please try again.');
       }
     } catch (err) {
       setError('Network error. Please try again.');
@@ -182,7 +209,7 @@ export default function CourseRegistrationPage() {
   };
 
   const getAvailableCoursesForSemester = () => {
-    return availableCourses.filter(course => course.semester_id === parseInt(selectedSemester));
+    return availableCourses.filter(course => course.semesterId === parseInt(selectedSemester));
   };
 
   if (loading) {

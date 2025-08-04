@@ -26,15 +26,4 @@ public class PaymentController {
                     .body(new ApiResponse("Error processing payment: " + e.getMessage(), "PAYMENT_ERROR", 500));
         }
     }
-
-    @PostMapping("/create")
-    public ResponseEntity<ApiResponse> createPayment(@RequestBody PaymentRequest request) {
-        try {
-            PaymentDto payment = paymentService.createPayment(request);
-            return ResponseEntity.ok(new ApiResponse("Payment created successfully", payment));
-        } catch (Exception e) {
-            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse("Error creating payment: " + e.getMessage(), "PAYMENT_CREATE_ERROR", 500));
-        }
-    }
 } 

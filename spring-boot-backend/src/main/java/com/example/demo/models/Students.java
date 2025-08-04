@@ -44,7 +44,8 @@ public class Students{
   @OneToMany
   private List<Payments> payments;
 
-  public Students(String name, LocalDate dob, String email){
+  public Students(String id, String name, LocalDate dob, String email){
+    this.id = id;
     this.name = name;
     this.date_of_birth = dob;
     this.email = email;

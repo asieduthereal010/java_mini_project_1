@@ -10,7 +10,8 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FeesOverviewDTO {
+public class FeesDTO {
+    private Long id;
     private BigDecimal totalAmount;
     private BigDecimal amountPaid;
     private BigDecimal amountOwed;

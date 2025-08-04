@@ -3,7 +3,7 @@ package com.example.demo.requests.payments;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 public class PaymentRequest {
@@ -11,7 +11,7 @@ public class PaymentRequest {
     private Long feeId;
     private BigDecimal amount;
     private String paymentMethod;
-    private LocalDateTime timestamp;
+    private LocalDate paymentDate;
     private String transactionId;
     private String status;
     private String description;

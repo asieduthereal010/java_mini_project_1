@@ -1,11 +1,6 @@
 package com.example.demo.services.courses;
 
-import com.example.demo.dtos.AvailableCourseDTO;
-import com.example.demo.dtos.CourseRegistrationDTO;
-import com.example.demo.dtos.AvailableCoursesResponseDTO;
-import com.example.demo.dtos.FeeCalculationDTO;
-import com.example.demo.dtos.LecturerDto;
-import com.example.demo.dtos.SemesterDTO;
+import com.example.demo.dtos.*;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.exceptions.StudentNotFoundException;
 import com.example.demo.exceptions.RegistrationValidationException;
@@ -21,6 +16,7 @@ import com.example.demo.requests.course_enrollments.DeleteCourse;
 import com.example.demo.requests.course_enrollments.RegisterCourses;
 import com.example.demo.requests.courses.CourseRegistrationRequest;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -39,16 +35,14 @@ public class CourseService implements ICourseService {
     private final CourseRepository courseRepository;
     private final CourseEnrollmentRepository courseEnrollmentRepository;
     private final LecturerRepository lecturerRepository;
+    private final ModelMapper modelMapper;
 
     @Override
-    public Object getAvailableCourses(String studentId, Integer semesterId) {
+    public Object getAvailableCourses(String studentId) {
         // Verify student exists
         studentRepository.findById(studentId)
                 .orElseThrow(() -> new StudentNotFoundException("Student not found"));
-        
-        // Verify semester exists
-        semestersRepository.findById(semesterId.longValue())
-                .orElseThrow(() -> new ResourceNotFoundException("Semester not found"));
+
         
         // Mock data for demonstration - in real implementation, fetch from repositories
         AvailableCoursesResponseDTO response = new AvailableCoursesResponseDTO();
@@ -57,28 +51,6 @@ public class CourseService implements ICourseService {
         response.setStudentEnrollments(getMockStudentEnrollments());
         
         return response;
-    }
-
-    @Override
-    public CourseRegistrationDTO registerCourses(CourseRegistrationRequest request) {
-        // Validate request
-        if (request.getStudentId() == null || request.getSemesterId() == null || request.getCourses() == null || request.getCourses().isEmpty()) {
-            throw new RegistrationValidationException("Invalid registration data: Semester ID is required, At least one course must be selected");
-        }
-        
-        // Verify student exists
-        Students student = studentRepository.findById(request.getStudentId())
-                .orElseThrow(() -> new StudentNotFoundException("Student not found"));
-        
-        // Verify semester exists
-        Semesters semester = semestersRepository.findById(request.getSemesterId().longValue())
-                .orElseThrow(() -> new ResourceNotFoundException("Semester not found"));
-        
-        // Validate courses and check for conflicts
-        validateCourseRegistration(request, student, semester);
-        
-        // Create registration response
-        return createRegistrationResponse(request, student, semester);
     }
 
     @Override
@@ -96,13 +68,14 @@ public class CourseService implements ICourseService {
     }
 
     @Override
-    public void RegisterCourses(String studentId, Long semesterId, List<RegisterCourses> courses) {
-        Students student = studentRepository.findById(studentId)
+    public void registerCourses(CourseRegistrationRequest request) {
+        Students student = studentRepository.findById(request.getStudentId())
                 .orElseThrow(() -> new StudentNotFoundException("No student exists by that ID"));
-        Semesters semester = semestersRepository.findById(semesterId)
+
+        Semesters semester = semestersRepository.findById(request.getSemesterId())
                 .orElseThrow(() -> new ResourceNotFoundException("No semester exists by that ID"));
 
-        for (var req : courses) {
+        for (var req : request.getCourses()) {
             Courses course = courseRepository.findById(req.getCourseId())
                     .orElseThrow(() -> new ResourceNotFoundException("Course not found: " + req.getCourseId()));
 
@@ -113,8 +86,8 @@ public class CourseService implements ICourseService {
             enrollment.setStudent(student);
             enrollment.setCourse(course);
             enrollment.setSemester(semester);
-            enrollment.setEnrollmentDate(req.getEnrollment() != null
-                    ? req.getEnrollment()
+            enrollment.setEnrollmentDate(req.getEnrollmentDate() != null
+                    ? req.getEnrollmentDate()
                     : java.time.LocalDate.now());
             enrollment.setStatus("active");
             enrollment.setCreatedAt(java.time.LocalDateTime.now());

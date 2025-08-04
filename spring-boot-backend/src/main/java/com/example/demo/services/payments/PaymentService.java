@@ -1,5 +1,6 @@
 package com.example.demo.services.payments;
 
+import com.example.demo.dtos.FeesDTO;
 import com.example.demo.dtos.PaymentDto;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.exceptions.StudentNotFoundException;
@@ -14,8 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 @Service
 @RequiredArgsConstructor
 public class PaymentService implements IPaymentService{
@@ -23,7 +22,6 @@ public class PaymentService implements IPaymentService{
     private final StudentRepository studentRepository;
     private final FeeRepository feeRepository;
     private final ModelMapper modelMapper;
-    private static final AtomicInteger number = new AtomicInteger(0);
 
     @Override
     public PaymentDto createPayment(PaymentRequest request) {
@@ -32,21 +30,23 @@ public class PaymentService implements IPaymentService{
 
         Fees fee = feeRepository.findById(request.getFeeId())
                 .orElseThrow(() -> new ResourceNotFoundException("No fee by that Id exits"));
-        fee.setAmount_paid(fee.getAmount_paid().add(request.getAmount()));
+        fee.setAmountPaid(fee.getAmountPaid().add(request.getAmount()));
         feeRepository.save(fee);
 
-        String transactionId = String.format("TXN-%010d", number.incrementAndGet());
-
         Payments payment = new Payments();
-        payment.setPaymentDate(request.getTimestamp());
+        payment.setPaymentDate(request.getPaymentDate().atStartOfDay());
         payment.setPaymentMethod(request.getPaymentMethod());
-        payment.setFee(fee);
+        payment.setFees(fee);
         payment.setStudent(student);
         payment.setAmount(request.getAmount());
         payment.setStatus(request.getStatus());
-        payment.setTransactionId(transactionId);
+        payment.setTransactionId(request.getTransactionId());
 
         paymentsRepository.save(payment);
-        return modelMapper.map(payment, PaymentDto.class);
+        FeesDTO feesDTO = modelMapper.map(fee, FeesDTO.class);
+        feesDTO.setAmountOwed(fee.getTotalAmount().subtract(fee.getAmountPaid()));
+        PaymentDto paymentDto = modelMapper.map(payment, PaymentDto.class);
+        paymentDto.setFees(feesDTO);
+        return paymentDto;
     }
 }
