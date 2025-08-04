@@ -189,7 +189,7 @@ Backend Database Operations:
 2. Update course_enrollments.grade to 'W' (withdrawal)
 3. Recalculate fees if necessary
 
-6. PASSWORD CHANGE REQUEST
+*6. PASSWORD CHANGE REQUEST
 ==========================
 
 Endpoint: PUT /api/student/password
@@ -218,7 +218,7 @@ Field Breakdown:
 | newPassword | string | Not stored in schema | "newpassword123" | Form input |
 | confirmPassword | string | Not stored in schema | "newpassword123" | Form input |
 
-7. CONTACT LECTURER REQUEST
+*7. CONTACT LECTURER REQUEST
 ===========================
 
 Endpoint: POST /api/contact/lecturer
@@ -276,7 +276,7 @@ Field Breakdown:
 | semesterId | integer | SERIAL, NOT NULL, FK to semesters(id) | 1 | Semester selection |
 | academicYear | string | VARCHAR(9) | "2024-2025" | Academic year |
 
-9. COURSE PROGRESS UPDATE REQUEST
+*9. COURSE PROGRESS UPDATE REQUEST
 ==================================
 
 Endpoint: PUT /api/courses/progress

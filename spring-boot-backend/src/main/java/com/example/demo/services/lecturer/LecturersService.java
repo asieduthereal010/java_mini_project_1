@@ -1,18 +1,19 @@
-package com.example.demo.services;
+package com.example.demo.services.lecturer;
 
-import com.example.demo.models.LecturerTADashboardDTO;
+import com.example.demo.dtos.LecturerTADashboardDTO;
 import com.example.demo.repositories.LecturerRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
-public class LecturersService {
-    @Autowired
-    LecturerRepository lecturerRepository;
+public class LecturersService implements ILecturersService{
+    private final LecturerRepository lecturerRepository;
 
+    @Override
     public List<LecturerTADashboardDTO> getLecturerTADashboardData() {
         List<Object[]> results = lecturerRepository.fetchLecturerTADashboardData();
         return results.stream().map(row -> new LecturerTADashboardDTO(

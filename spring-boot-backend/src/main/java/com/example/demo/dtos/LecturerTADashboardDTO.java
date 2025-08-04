@@ -1,4 +1,4 @@
-package com.example.demo.models;
+package com.example.demo.dtos;
 
 import java.util.List;
 

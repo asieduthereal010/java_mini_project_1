@@ -2,16 +2,21 @@ package com.example.demo.models;
 
 import java.util.Set;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 public class Courses {
   @Id
-  private String id; 
+  private String id;
   private String name;
   private String code;
 
@@ -33,4 +38,13 @@ public class Courses {
     inverseJoinColumns = @JoinColumn(name = "lecturer_assistant_id")
   )
   private Set<TeacherAssistants> teacherAssistants;
+
+  @ManyToOne
+  private Semesters semester;
+
+  public Courses(String name, String code){
+    this.name = name;
+    this.code = code;
+  }
+
 }
