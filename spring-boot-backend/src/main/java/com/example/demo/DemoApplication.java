@@ -2,6 +2,7 @@ package com.example.demo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.slf4j.Logger;
@@ -14,6 +15,13 @@ public class DemoApplication {
 	private static final Logger logger = LoggerFactory.getLogger(DemoApplication.class);
 
 	public static void main(String[] args) {
+		Dotenv dotenv = Dotenv.configure().load();
+		System.setProperty("SPRING_DATASOURCE_URL", dotenv.get("SPRING_DATASOURCE_URL"));
+		System.setProperty("SPRING_DATASOURCE_USERNAME", dotenv.get("SPRING_DATASOURCE_USERNAME"));
+		System.setProperty("SPRING_DATASOURCE_PASSWORD", dotenv.get("SPRING_DATASOURCE_PASSWORD"));
+		System.setProperty("SPRING_JPA_HIBERNATE", dotenv.get("SPRING_JPA_HIBERNATE"));
+		SpringApplication.run(DemoApplication.class, args
+		);
 		logger.info("🚀 Starting Student Management System...");
 		logger.info("📚 Spring Boot version: 3.5.3");
 		logger.info("☕ Java version: 21");
