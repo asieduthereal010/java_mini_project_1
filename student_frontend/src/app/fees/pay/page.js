@@ -123,10 +123,19 @@ export default function FeePaymentPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Fee Payment</h1>
-        <p className="mt-2 text-gray-600">Make a payment towards your outstanding fees</p>
+      {/* Page Header with Back Button */}
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Fee Payment</h1>
+          <p className="mt-2 text-gray-600">Make a payment towards your outstanding fees</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => router.push('/dashboard')}
+          className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+        >
+          Back
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

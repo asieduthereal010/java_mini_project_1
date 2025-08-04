@@ -135,12 +135,6 @@ export default function RootLayout({ children }) {
           <h3 className="text-lg font-medium text-gray-900">Quick Actions</h3>
           <div className="space-y-3">
             <button
-              onClick={() => router.push('/dashboard')}
-              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-md font-medium transition-colors"
-            >
-              Back to Dashboard
-            </button>
-            <button
               onClick={handlePayFees}
               className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
             >
