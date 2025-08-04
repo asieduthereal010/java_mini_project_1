@@ -8,9 +8,8 @@ import com.example.demo.requests.courses.CourseRegistrationRequest;
 import java.util.List;
 
 public interface ICourseService {
-    void RegisterCourses(String studentId, Long semester, List<RegisterCourses> courses);
-    Object getAvailableCourses(String studentId, Integer semesterId);
-    CourseRegistrationDTO registerCourses(CourseRegistrationRequest request);
+    Object getAvailableCourses(String studentId);
+    void registerCourses(CourseRegistrationRequest request);
     Object calculateFees(String studentId, Integer semesterId, String courseIds);
     void DeleteCourse(DeleteCourse courseInfo);
 }

@@ -1,6 +1,5 @@
 package com.example.demo.controllers;
 
-import com.example.demo.dtos.AvailableCourseDTO;
 import com.example.demo.dtos.CourseRegistrationDTO;
 import com.example.demo.exceptions.StudentNotFoundException;
 import com.example.demo.requests.course_enrollments.DeleteCourse;
@@ -12,8 +11,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
@@ -24,10 +21,10 @@ public class CourseController {
 
     @GetMapping("/available")
     public ResponseEntity<ApiResponse> getAvailableCourses(
-            @RequestParam String studentId,
-            @RequestParam Integer semesterId) {
+            @RequestParam String studentId)
+             {
         try {
-            Object availableCourses = courseService.getAvailableCourses(studentId, semesterId);
+            Object availableCourses = courseService.getAvailableCourses(studentId);
             return ResponseEntity.ok(new ApiResponse("Available courses retrieved successfully", availableCourses));
         } catch (Exception e) {
             return ResponseEntity.status(INTERNAL_SERVER_ERROR)
@@ -38,8 +35,11 @@ public class CourseController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> registerCourse(@RequestBody CourseRegistrationRequest request) {
         try {
-            CourseRegistrationDTO registration = courseService.registerCourses(request);
-            return ResponseEntity.ok(new ApiResponse("Course registration completed successfully", registration));
+            courseService.registerCourses(request);
+            return ResponseEntity.ok(new ApiResponse("Course registration completed successfully", null));
+        } catch (StudentNotFoundException e){
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(new ApiResponse("Student not found", null));
         } catch (Exception e) {
             return ResponseEntity.status(CONFLICT)
                     .body(new ApiResponse("Registration validation failed", "REGISTRATION_VALIDATION_ERROR", 409, e.getMessage()));
@@ -60,19 +60,6 @@ public class CourseController {
         }
     }
 
-    @PostMapping("/register/web")
-    public ResponseEntity<ApiResponse> registerCourseWeb(@RequestBody WebRegisterCourses request) {
-        try {
-            courseService.RegisterCourses(request.getStudentId(), request.getSemesterId(), request.getCourses());
-            return ResponseEntity.ok(new ApiResponse("Courses registered Successfully", null));
-        } catch (StudentNotFoundException e) {
-            return ResponseEntity.status(NOT_FOUND)
-                    .body(new ApiResponse(e.getMessage(), "STUDENT_NOT_FOUND", 404));
-        } catch (Exception e) {
-            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse("Error registering courses: " + e.getMessage(), "REGISTRATION_ERROR", 500));
-        }
-    }
 
     @DeleteMapping("/delete")
     public ResponseEntity<ApiResponse> deleteCourse(@RequestBody DeleteCourse request) {

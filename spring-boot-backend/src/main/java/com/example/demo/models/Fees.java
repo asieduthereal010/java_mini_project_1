@@ -22,9 +22,9 @@ public class Fees {
   @Id
   private Long id;
   @Column(precision = 10, scale = 2, nullable = false)
-  private BigDecimal total_amount;
+  private BigDecimal totalAmount;
   @Column(precision = 10, scale = 2, nullable = false)
-  private BigDecimal amount_paid;
+  private BigDecimal amountPaid;
   @Column(length = 9)
   private String academicYear;
   private LocalDate dueDate;

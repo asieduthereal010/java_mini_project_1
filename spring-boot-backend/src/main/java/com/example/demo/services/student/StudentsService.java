@@ -4,7 +4,7 @@ import com.example.demo.dtos.StudentDto;
 import com.example.demo.dtos.StudentDashboardDTO;
 import com.example.demo.dtos.PaymentHistoryDTO;
 import com.example.demo.dtos.CourseEnrollmentDTO;
-import com.example.demo.dtos.FeesOverviewDTO;
+import com.example.demo.dtos.FeesDTO;
 import com.example.demo.dtos.SemesterDTO;
 import com.example.demo.dtos.LecturerDto;
 import com.example.demo.exceptions.StudentNotFoundException;
@@ -59,7 +59,7 @@ public class StudentsService implements IStudentsService {
         
         // Mock data for demonstration - in real implementation, fetch from repositories
         List<CourseEnrollmentDTO> courses = getMockCourses();
-        FeesOverviewDTO fees = getMockFees();
+        FeesDTO fees = getMockFees();
         SemesterDTO semester = getMockSemester();
         
         return new StudentDashboardDTO(
@@ -139,11 +139,12 @@ public class StudentsService implements IStudentsService {
         );
     }
 
-    private FeesOverviewDTO getMockFees() {
-        return new FeesOverviewDTO(
-                new BigDecimal("5000.00"),
+    private FeesDTO getMockFees() {
+        return new FeesDTO(
+                1L,
+                new BigDecimal("5500.00"),
                 new BigDecimal("3000.00"),
-                new BigDecimal("2000.00"),
+                new BigDecimal("2500.00"),
                 LocalDate.of(2024, 12, 31),
                 "2024-2025",
                 "Fall 2024"
