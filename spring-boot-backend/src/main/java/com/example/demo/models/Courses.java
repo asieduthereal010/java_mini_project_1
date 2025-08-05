@@ -1,5 +1,6 @@
 package com.example.demo.models;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -20,6 +21,8 @@ public class Courses {
   private String id;
   private String name;
   private String code;
+  @Column(precision = 10, scale = 2, nullable = false)
+  private BigDecimal price;
 
   @OneToMany(mappedBy = "course")
   private List<CourseEnrollments> enrollments;

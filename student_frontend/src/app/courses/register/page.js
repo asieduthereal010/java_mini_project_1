@@ -91,16 +91,21 @@ export default function CourseRegistrationPage() {
   useEffect(() => {
     // Simulate API calls
     const fetchData = async () => {
+      const studentId = localStorage.getItem("studentId");
       try {
-        // Fetch semesters
-        setSemesters(mockSemesters);
-        setSelectedSemester(mockSemesters[0]?.id || '');
-        
+        setLoading(true);
+        const res = await fetch("http://localhost:8080/api/courses/available?studentId=" + studentId);
+        if (!res.ok) {
+          console.log("Didn't work")
+        }
+        const data = await res.json();
+        console.log(data);
+        setSemesters(data.data.semesters);
         // Fetch available courses
-        setAvailableCourses(mockAvailableCourses);
-        setLoading(false);
+        setAvailableCourses(data.data.availableCourses);
       } catch (err) {
         setError('Failed to load course data');
+      } finally {
         setLoading(false);
       }
     };
