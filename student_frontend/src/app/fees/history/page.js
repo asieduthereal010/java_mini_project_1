@@ -261,7 +261,7 @@ export default function PaymentHistoryPage() {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Last Payment</p>
               <p className="text-lg font-bold text-gray-900">
-                {payments.length > 0 ? formatDate(payments[0].paymentDate) : 'N/A'}
+                {payments.length > 0 ? formatDate(payments[payments.length - 1].paymentDate) : 'N/A'}
               </p>
             </div>
           </div>

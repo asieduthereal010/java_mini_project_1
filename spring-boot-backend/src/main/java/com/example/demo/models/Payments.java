@@ -33,6 +33,8 @@ public class Payments {
     @Column(length = 20)
     private String status = "completed";
 
+    private String description;
+
     @CurrentTimestamp
     @Column(updatable = false, nullable = false)
     private LocalDate createdAt;

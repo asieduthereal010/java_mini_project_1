@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 @RequiredArgsConstructor
 @Service
@@ -43,14 +44,91 @@ public class CourseService implements ICourseService {
         studentRepository.findById(studentId)
                 .orElseThrow(() -> new StudentNotFoundException("Student not found"));
 
-        
-        // Mock data for demonstration - in real implementation, fetch from repositories
+        // Fetch real data from repositories
         AvailableCoursesResponseDTO response = new AvailableCoursesResponseDTO();
-        response.setSemesters(getMockSemesters());
-        response.setAvailableCourses(getMockAvailableCourses());
-        response.setStudentEnrollments(getMockStudentEnrollments());
+        
+        // Get all semesters
+        List<Semesters> allSemesters = semestersRepository.findAll();
+        List<SemesterDTO.CurrentSemesterDTO> semesterDTOs = allSemesters.stream()
+                .map(semester -> new SemesterDTO.CurrentSemesterDTO(
+                        semester.getId().intValue(),
+                        semester.getName(),
+                        semester.getSemesterType(),
+                        semester.getYear(),
+                        semester.getStartDate(),
+                        semester.getEndDate(),
+                        semester.isActive()
+                ))
+                .collect(Collectors.toList());
+        response.setSemesters(semesterDTOs);
+        
+        // Get all courses with their lecturers
+        List<Courses> allCourses = courseRepository.findAll();
+        List<AvailableCourseDTO> availableCourses = allCourses.stream()
+                .map(this::convertToAvailableCourseDTO)
+                .collect(Collectors.toList());
+        response.setAvailableCourses(availableCourses);
+        
+        // Get student's current enrollments
+        List<AvailableCoursesResponseDTO.StudentEnrollmentDTO> studentEnrollments = new ArrayList<>();
+        try {
+            List<CourseEnrollments> enrollments = courseEnrollmentRepository.findAllByStudentId(studentId)
+                    .orElse(new ArrayList<>());
+            studentEnrollments = enrollments.stream()
+                    .map(enrollment -> new AvailableCoursesResponseDTO.StudentEnrollmentDTO(
+                            enrollment.getCourse().getId(),
+                            enrollment.getStatus(),
+                            enrollment.getEnrollmentDate().toString(),
+                            enrollment.getGrade()
+                    ))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            // If no enrollments found, return empty list
+        }
+        response.setStudentEnrollments(studentEnrollments);
         
         return response;
+    }
+
+    private AvailableCourseDTO convertToAvailableCourseDTO(Courses course) {
+        AvailableCourseDTO courseDTO = new AvailableCourseDTO();
+        courseDTO.setId(course.getId());
+        courseDTO.setName(course.getName());
+        courseDTO.setCode(course.getCode());
+        courseDTO.setCredits(3); // Default credits - you might want to add this field to the Courses model
+        courseDTO.setDescription("Course description for " + course.getName()); // You might want to add this field to the Courses model
+        
+        // Get lecturer for this course
+        if (course.getLecturers() != null && !course.getLecturers().isEmpty()) {
+            Lecturers lecturer = course.getLecturers().iterator().next();
+            courseDTO.setLecturer(new LecturerDto(lecturer.getId(), lecturer.getName(), lecturer.getEmail()));
+        } else {
+            courseDTO.setLecturer(new LecturerDto("N/A", "TBD", "tbd@university.edu"));
+        }
+        
+        // Calculate enrollment count
+        int enrolledCount = 0;
+        try {
+            List<CourseEnrollments> enrollments = courseEnrollmentRepository.findAllByCourseId(course.getId());
+            enrolledCount = enrollments.size();
+        } catch (Exception e) {
+            // If error, set to 0
+        }
+        
+        courseDTO.setCapacity(30); // Default capacity - you might want to add this field to the Courses model
+        courseDTO.setEnrolled(enrolledCount);
+        courseDTO.setSemesterId(course.getSemester() != null ? course.getSemester().getId().intValue() : 1);
+        courseDTO.setFee(new BigDecimal("1500.00")); // Default fee - you might want to add this field to the Courses model
+        courseDTO.setPrerequisites(new ArrayList<>()); // You might want to add this field to the Courses model
+        
+        // Create mock schedule - you might want to add this to the Courses model
+        AvailableCourseDTO.CourseScheduleDTO schedule = new AvailableCourseDTO.CourseScheduleDTO();
+        schedule.setDays(Arrays.asList("Monday", "Wednesday"));
+        schedule.setTime("10:00 AM - 11:30 AM");
+        schedule.setRoom("Room " + course.getCode());
+        courseDTO.setSchedule(schedule);
+        
+        return courseDTO;
     }
 
     @Override
@@ -60,40 +138,204 @@ public class CourseService implements ICourseService {
                 .orElseThrow(() -> new StudentNotFoundException("Student not found"));
         
         // Verify semester exists
-        semestersRepository.findById(semesterId.longValue())
+        Semesters semester = semestersRepository.findById(semesterId.longValue())
                 .orElseThrow(() -> new ResourceNotFoundException("Semester not found"));
         
-        // Mock data for demonstration - in real implementation, calculate from actual course fees
-        return createMockFeeCalculation(studentId, semesterId, courseIds);
+        // Parse course IDs
+        List<String> courseIdList = Arrays.asList(courseIds.split(","));
+        
+        // Get courses from database
+        List<Courses> courses = courseRepository.findAllById(courseIdList);
+        
+        // Create fee calculation response
+        FeeCalculationDTO calculation = new FeeCalculationDTO();
+        calculation.setStudentId(studentId);
+        calculation.setSemesterId(semesterId);
+        calculation.setSemesterName(semester.getName());
+        
+        // Calculate course fees
+        List<FeeCalculationDTO.CourseFeeDTO> courseFees = courses.stream()
+                .map(course -> new FeeCalculationDTO.CourseFeeDTO(
+                        course.getId(),
+                        course.getName(),
+                        course.getCode(),
+                        3, // Default credits - you might want to add this field to the Courses model
+                        new BigDecimal("1500.00") // Default fee per course - you might want to add this field to the Courses model
+                ))
+                .collect(Collectors.toList());
+        calculation.setCourseFees(courseFees);
+        
+        // Calculate total fees
+        BigDecimal totalCourseFees = courseFees.stream()
+                .map(FeeCalculationDTO.CourseFeeDTO::getFee)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        BigDecimal registrationFee = new BigDecimal("100.00");
+        BigDecimal technologyFee = new BigDecimal("50.00");
+        BigDecimal totalFees = totalCourseFees.add(registrationFee).add(technologyFee);
+        
+        // Create fee breakdown
+        FeeCalculationDTO.FeeBreakdownDTO feeBreakdown = new FeeCalculationDTO.FeeBreakdownDTO(
+                totalCourseFees,
+                registrationFee,
+                technologyFee,
+                totalFees
+        );
+        calculation.setFeeBreakdown(feeBreakdown);
+        
+        // Create payment options
+        FeeCalculationDTO.PaymentOptionsDTO paymentOptions = new FeeCalculationDTO.PaymentOptionsDTO();
+        
+        // Full payment option
+        paymentOptions.setFullPayment(new FeeCalculationDTO.FullPaymentDTO(
+                totalFees,
+                LocalDate.now().plusMonths(1),
+                BigDecimal.ZERO
+        ));
+        
+        // Installment plan option
+        int numberOfInstallments = 3;
+        BigDecimal installmentAmount = totalFees.divide(new BigDecimal(numberOfInstallments), 2, BigDecimal.ROUND_HALF_UP);
+        List<LocalDate> installmentDates = Arrays.asList(
+                LocalDate.now().plusMonths(1),
+                LocalDate.now().plusMonths(2),
+                LocalDate.now().plusMonths(3)
+        );
+        
+        paymentOptions.setInstallmentPlan(new FeeCalculationDTO.InstallmentPlanDTO(
+                totalFees,
+                numberOfInstallments,
+                installmentAmount,
+                installmentDates
+        ));
+        
+        calculation.setPaymentOptions(paymentOptions);
+        
+        return calculation;
     }
 
     @Override
-    public void registerCourses(CourseRegistrationRequest request) {
+    public Object registerCourses(CourseRegistrationRequest request) {
+        // Validate request
+        if (request.getStudentId() == null || request.getStudentId().trim().isEmpty()) {
+            throw new RegistrationValidationException("Student ID is required");
+        }
+        if (request.getSemesterId() == null) {
+            throw new RegistrationValidationException("Semester ID is required");
+        }
+        if (request.getCourses() == null || request.getCourses().isEmpty()) {
+            throw new RegistrationValidationException("At least one course must be selected for registration");
+        }
+
+        // Verify student exists
         Students student = studentRepository.findById(request.getStudentId())
                 .orElseThrow(() -> new StudentNotFoundException("No student exists by that ID"));
 
+        // Verify semester exists and is active
         Semesters semester = semestersRepository.findById(request.getSemesterId())
                 .orElseThrow(() -> new ResourceNotFoundException("No semester exists by that ID"));
 
-        for (var req : request.getCourses()) {
-            Courses course = courseRepository.findById(req.getCourseId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Course not found: " + req.getCourseId()));
+        if (!semester.isActive()) {
+            throw new RegistrationValidationException("Cannot register for inactive semester: " + semester.getName());
+        }
 
+        // Validate all courses before processing
+        validateCourseRegistration(request, student, semester);
+
+        // Process course registrations
+        List<CourseRegistrationDTO.EnrollmentDetailDTO> successfulEnrollments = new ArrayList<>();
+        List<String> failedEnrollments = new ArrayList<>();
+
+        for (CourseRegistrationRequest.CourseEnrollmentRequest courseReq : request.getCourses()) {
+            try {
+                Courses course = courseRepository.findById(courseReq.getCourseId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Course not found: " + courseReq.getCourseId()));
+
+                // Check if already enrolled
             CourseEnrollmentId enrollmentId = new CourseEnrollmentId(student.getId(), course.getId(), semester.getId());
+                if (courseEnrollmentRepository.findById(enrollmentId).isPresent()) {
+                    failedEnrollments.add(courseReq.getCourseId() + " - Already enrolled");
+                    continue;
+                }
 
+                // Create enrollment
             CourseEnrollments enrollment = new CourseEnrollments();
             enrollment.setId(enrollmentId);
             enrollment.setStudent(student);
             enrollment.setCourse(course);
             enrollment.setSemester(semester);
-            enrollment.setEnrollmentDate(req.getEnrollmentDate() != null
-                    ? req.getEnrollmentDate()
-                    : java.time.LocalDate.now());
+                enrollment.setEnrollmentDate(courseReq.getEnrollmentDate() != null
+                        ? courseReq.getEnrollmentDate()
+                        : LocalDate.now());
             enrollment.setStatus("active");
-            enrollment.setCreatedAt(java.time.LocalDateTime.now());
+                enrollment.setCreatedAt(LocalDateTime.now());
 
+                // Save enrollment
             courseEnrollmentRepository.save(enrollment);
+
+                // Add to successful enrollments
+                successfulEnrollments.add(new CourseRegistrationDTO.EnrollmentDetailDTO(
+                        course.getId(),
+                        course.getName(),
+                        course.getCode(),
+                        enrollment.getEnrollmentDate(),
+                        enrollment.getStatus(),
+                        new BigDecimal("1500.00") // Default fee per course
+                ));
+
+            } catch (Exception e) {
+                failedEnrollments.add(courseReq.getCourseId() + " - " + e.getMessage());
+            }
         }
+
+        // Create response
+        if (successfulEnrollments.isEmpty()) {
+            throw new RegistrationValidationException("No courses were successfully registered. Errors: " + String.join(", ", failedEnrollments));
+        }
+
+        // Calculate fees
+        BigDecimal totalFee = successfulEnrollments.stream()
+                .map(CourseRegistrationDTO.EnrollmentDetailDTO::getFee)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal registrationFee = new BigDecimal("100.00");
+        BigDecimal totalAmount = totalFee.add(registrationFee);
+
+        // Create fee breakdown
+        CourseRegistrationDTO.FeeBreakdownDTO feeBreakdown = new CourseRegistrationDTO.FeeBreakdownDTO(
+                totalFee,
+                registrationFee,
+                totalAmount
+        );
+
+        // Create confirmation
+        CourseRegistrationDTO.EnrollmentConfirmationDTO confirmation = new CourseRegistrationDTO.EnrollmentConfirmationDTO(
+                "CONF" + UUID.randomUUID().toString().substring(0, 8),
+                LocalDateTime.now(),
+                "confirmed"
+        );
+
+        // Create response DTO
+        CourseRegistrationDTO response = new CourseRegistrationDTO(
+                "REG" + UUID.randomUUID().toString().substring(0, 8),
+                student.getId(),
+                semester.getId().intValue(),
+                semester.getName(),
+                successfulEnrollments,
+                totalAmount,
+                feeBreakdown,
+                LocalDate.now().plusMonths(1), // Due date
+                confirmation,
+                failedEnrollments.isEmpty() ? null : failedEnrollments
+        );
+
+        // Add warnings if some enrollments failed
+        if (!failedEnrollments.isEmpty()) {
+            response.setWarnings(failedEnrollments);
+        }
+        
+
+        return response;
     }
 
     @Override
@@ -130,66 +372,33 @@ public class CourseService implements ICourseService {
                 throw new AlreadyEnrolledException("Already enrolled in course: " + courseReq.getCourseId());
             }
             
-            // Check prerequisites (mock validation)
-            if (courseReq.getCourseId().equals("CS201") && !hasPrerequisite(student, "CS101")) {
-                throw new RegistrationValidationException("Prerequisite CS101 not completed for course CS201");
+            // Check if course is offered in the selected semester
+            if (course.getSemester() != null && !course.getSemester().getId().equals(semester.getId())) {
+                throw new RegistrationValidationException("Course " + courseReq.getCourseId() + " is not offered in semester " + semester.getName());
             }
             
-            // Check capacity (mock validation)
-            if (courseReq.getCourseId().equals("MATH301") && getEnrollmentCount(course) >= 25) {
-                throw new RegistrationValidationException("Course capacity reached for MATH301");
+            // Check course capacity (using real enrollment count)
+            int currentEnrollmentCount = courseEnrollmentRepository.findAllByCourseId(course.getId()).size();
+            int maxCapacity = 30; // Default capacity - you might want to add this field to the Courses model
+            if (currentEnrollmentCount >= maxCapacity) {
+                throw new RegistrationValidationException("Course " + courseReq.getCourseId() + " has reached maximum capacity");
             }
         }
         
-        // Check for schedule conflicts (mock validation)
-        if (request.getCourses().size() > 1) {
-            throw new ScheduleConflictException("Schedule conflict detected between selected courses");
+        // Check for duplicate course registrations in the same request
+        List<String> courseIds = request.getCourses().stream()
+                .map(CourseRegistrationRequest.CourseEnrollmentRequest::getCourseId)
+                .collect(Collectors.toList());
+        List<String> uniqueCourseIds = courseIds.stream().distinct().collect(Collectors.toList());
+        if (courseIds.size() != uniqueCourseIds.size()) {
+            throw new RegistrationValidationException("Duplicate course registrations are not allowed");
         }
-    }
-
-    private CourseRegistrationDTO createRegistrationResponse(CourseRegistrationRequest request, Students student, Semesters semester) {
-        List<CourseRegistrationDTO.EnrollmentDetailDTO> enrollments = request.getCourses().stream()
-                .map(courseReq -> {
-                    Courses course = courseRepository.findById(courseReq.getCourseId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
-                    
-                    return new CourseRegistrationDTO.EnrollmentDetailDTO(
-                            courseReq.getCourseId(),
-                            course.getName(),
-                            course.getCode(),
-                            courseReq.getEnrollmentDate(),
-                            "active",
-                            new BigDecimal("1500.00") // Mock fee
-                    );
-                }).collect(Collectors.toList());
         
-        BigDecimal totalFee = enrollments.stream()
-                .map(CourseRegistrationDTO.EnrollmentDetailDTO::getFee)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
-        CourseRegistrationDTO.FeeBreakdownDTO feeBreakdown = new CourseRegistrationDTO.FeeBreakdownDTO(
-                totalFee,
-                new BigDecimal("100.00"),
-                totalFee.add(new BigDecimal("100.00"))
-        );
-        
-        CourseRegistrationDTO.EnrollmentConfirmationDTO confirmation = new CourseRegistrationDTO.EnrollmentConfirmationDTO(
-                "CONF" + UUID.randomUUID().toString().substring(0, 8),
-                LocalDateTime.now(),
-                "confirmed"
-        );
-        
-        return new CourseRegistrationDTO(
-                "REG" + UUID.randomUUID().toString().substring(0, 8),
-                student.getId(),
-                semester.getId().intValue(),
-                semester.getName(),
-                enrollments,
-                totalFee,
-                feeBreakdown,
-                LocalDate.now().plusMonths(1),
-                confirmation
-        );
+        // Check maximum courses per semester (optional validation)
+        int maxCoursesPerSemester = 6; // You might want to make this configurable
+        if (request.getCourses().size() > maxCoursesPerSemester) {
+            throw new RegistrationValidationException("Cannot register for more than " + maxCoursesPerSemester + " courses per semester");
+        }
     }
 
     // Mock data methods
@@ -290,15 +499,6 @@ public class CourseService implements ICourseService {
         
         return calculation;
     }
-
-    // Helper methods for validation
-    private boolean hasPrerequisite(Students student, String prerequisiteCourseId) {
-        // Mock implementation - in real app, check student's completed courses
-        return true;
-    }
-
-    private int getEnrollmentCount(Courses course) {
-        // Mock implementation - in real app, count actual enrollments
-        return 20;
-    }
 }
+
+

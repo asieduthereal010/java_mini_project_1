@@ -173,7 +173,7 @@ export default function CourseRegistrationPage() {
     try {
       // Simulate API call
       const registrationData = {
-        studentId: 'STU001', // Get from auth context
+        studentId: localStorage.getItem("studentId"), // Get from auth context
         semesterId: parseInt(selectedSemester),
         courses: selectedCourses.map(courseId => ({
           courseId,

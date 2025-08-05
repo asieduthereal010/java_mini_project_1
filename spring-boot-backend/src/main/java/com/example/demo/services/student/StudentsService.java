@@ -7,8 +7,9 @@ import com.example.demo.dtos.CourseEnrollmentDTO;
 import com.example.demo.dtos.FeesDTO;
 import com.example.demo.dtos.SemesterDTO;
 import com.example.demo.dtos.LecturerDto;
+import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.exceptions.StudentNotFoundException;
-import com.example.demo.models.Students;
+import com.example.demo.models.*;
 import com.example.demo.requests.students.ProfileUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -25,7 +26,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 @RequiredArgsConstructor
 @Service
@@ -56,20 +59,88 @@ public class StudentsService implements IStudentsService {
     public StudentDashboardDTO getStudentDashboard(String studentId) {
         Students student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new StudentNotFoundException("Student not found"));
+
+        // Get student's course enrollments
+        List<CourseEnrollments> courseEnrollments = new ArrayList<>();
+        try {
+            courseEnrollments = courseEnrollmentRepository.findAllByStudentId(studentId)
+                    .orElse(new ArrayList<>());
+        } catch (Exception e) {
+            // If no enrollments found, return empty list
+        }
         
-        // Mock data for demonstration - in real implementation, fetch from repositories
-        List<CourseEnrollmentDTO> courses = getMockCourses();
-        FeesDTO fees = getMockFees();
-        SemesterDTO semester = getMockSemester();
+        // Convert enrollments to DTOs
+        List<CourseEnrollmentDTO> courseEnrollmentDTOs = courseEnrollments.stream()
+                .map(enrollment -> {
+                    CourseEnrollmentDTO dto = new CourseEnrollmentDTO();
+                    dto.setId(enrollment.getCourse().getId());
+                    dto.setName(enrollment.getCourse().getName());
+                    dto.setCode(enrollment.getCourse().getCode());
+                    
+                    // Get lecturer for this course
+                    if (enrollment.getCourse().getLecturers() != null && !enrollment.getCourse().getLecturers().isEmpty()) {
+                        Lecturers lecturer = enrollment.getCourse().getLecturers().iterator().next();
+                        dto.setLecturer(new LecturerDto(lecturer.getId(), lecturer.getName(), lecturer.getEmail()));
+                    } else {
+                        dto.setLecturer(new LecturerDto("N/A", "TBD", "tbd@university.edu"));
+                    }
+                    
+                    dto.setProgress(75); // Default progress - you might want to add this field to the CourseEnrollments model
+                    dto.setSemester(enrollment.getSemester() != null ? enrollment.getSemester().getName() : "Unknown");
+                    dto.setStatus(enrollment.getStatus());
+                    dto.setGrade(enrollment.getGrade());
+                    
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        
+        // Get current semester (active semester)
+        Semesters currentSemester = semestersRepository.findAll().stream()
+                .filter(Semesters::isActive)
+                .findFirst()
+                .orElse(null);
+        
+        SemesterDTO semesterDTO;
+        if (currentSemester != null) {
+            SemesterDTO.CurrentSemesterDTO current = new SemesterDTO.CurrentSemesterDTO(
+                    currentSemester.getId().intValue(),
+                    currentSemester.getName(),
+                    currentSemester.getSemesterType(),
+                    currentSemester.getYear(),
+                    currentSemester.getStartDate(),
+                    currentSemester.getEndDate(),
+                    currentSemester.isActive()
+            );
+            semesterDTO = new SemesterDTO(current);
+        } else {
+            semesterDTO = getMockSemester(); // Fallback to mock if no active semester
+        }
+        
+        // Get student's fees
+        FeesDTO feesDTO;
+        try {
+            List<Fees> fees = feeRepository.findAllByStudentId(studentId)
+                    .orElse(new ArrayList<>());
+            
+            if (!fees.isEmpty()) {
+                Fees fee = fees.get(0); // Get the first fee record
+                feesDTO = modelMapper.map(fee, FeesDTO.class);
+                feesDTO.setAmountOwed(fee.getTotalAmount().subtract(fee.getAmountPaid()));
+            } else {
+                feesDTO = getMockFees(); // Fallback to mock if no fees found
+            }
+        } catch (Exception e) {
+            feesDTO = getMockFees(); // Fallback to mock if error
+        }
         
         return new StudentDashboardDTO(
                 student.getId(),
                 student.getName(),
                 student.getEmail(),
                 student.getDate_of_birth(),
-                courses,
-                fees,
-                semester
+                courseEnrollmentDTOs,
+                feesDTO,
+                semesterDTO
         );
     }
 
@@ -79,11 +150,50 @@ public class StudentsService implements IStudentsService {
         studentRepository.findById(studentId)
                 .orElseThrow(() -> new StudentNotFoundException("Student not found"));
         
-        // Mock data for demonstration - in real implementation, fetch from paymentsRepository
-        List<PaymentHistoryDTO.PaymentDetailDTO> payments = getMockPayments(studentId);
-        PaymentHistoryDTO.PaymentSummaryDTO summary = getMockPaymentSummary(payments);
+        // Get real payment data from repository
+        List<Payments> paymentsList = paymentsRepository.findAllByStudentId(studentId);
         
-        return new PaymentHistoryDTO(payments, summary);
+        if (paymentsList.isEmpty()) {
+            // Return empty payment history if no payments found
+            return new PaymentHistoryDTO(new ArrayList<>(), 
+                new PaymentHistoryDTO.PaymentSummaryDTO(BigDecimal.ZERO, 0, LocalDateTime.now()));
+        }
+        
+        // Convert payments to DTOs
+        List<PaymentHistoryDTO.PaymentDetailDTO> paymentDTOs = paymentsList.stream()
+                .map(payment -> {
+                    PaymentHistoryDTO.PaymentDetailDTO dto = new PaymentHistoryDTO.PaymentDetailDTO();
+                    dto.setId(payment.getTransactionId());
+                    dto.setStudentId(payment.getStudent().getId());
+                    dto.setAmount(payment.getAmount());
+                    dto.setPaymentMethod(payment.getPaymentMethod());
+                    dto.setPaymentDate(payment.getPaymentDate());
+                    dto.setTransactionId(payment.getTransactionId());
+                    dto.setStatus(payment.getStatus());
+                    dto.setDescription(payment.getDescription());
+                    dto.setFeeId(payment.getFees() != null ? payment.getFees().getId().intValue() : null);
+                    dto.setSemester("Unknown"); // Default semester name
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        
+        // Calculate payment summary
+        BigDecimal totalPaid = paymentDTOs.stream()
+                .map(PaymentHistoryDTO.PaymentDetailDTO::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        LocalDateTime lastPaymentDate = paymentDTOs.stream()
+                .map(PaymentHistoryDTO.PaymentDetailDTO::getPaymentDate)
+                .max(LocalDateTime::compareTo)
+                .orElse(LocalDateTime.now());
+        
+        PaymentHistoryDTO.PaymentSummaryDTO summary = new PaymentHistoryDTO.PaymentSummaryDTO(
+                totalPaid,
+                paymentDTOs.size(),
+                lastPaymentDate
+        );
+        
+        return new PaymentHistoryDTO(paymentDTOs, summary);
     }
 
     @Override
@@ -92,8 +202,47 @@ public class StudentsService implements IStudentsService {
         Students student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new StudentNotFoundException("Student not found"));
         
-        // Mock data for demonstration - in real implementation, fetch from repositories
-        return createMockFeesOverview(student);
+        // Get real fees data from repository
+        List<Fees> feesList = new ArrayList<>();
+        try {
+            feesList = feeRepository.findAllByStudentId(studentId)
+                    .orElse(new ArrayList<>());
+        } catch (Exception e) {
+            // If no fees found, return empty list
+        }
+        
+        // Calculate total amounts
+        BigDecimal calculatedTotalAmount = feesList.stream()
+                .map(Fees::getTotalAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        BigDecimal calculatedTotalPaid = feesList.stream()
+                .map(Fees::getAmountPaid)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        BigDecimal calculatedTotalOwed = calculatedTotalAmount.subtract(calculatedTotalPaid);
+        
+        // Get the most recent due date
+        LocalDate calculatedDueDate = feesList.stream()
+                .map(Fees::getDueDate)
+                .max(LocalDate::compareTo)
+                .orElse(LocalDate.of(2024, 12, 31));
+        
+        // Get academic year and semester
+        String calculatedAcademicYear = feesList.isEmpty() ? "2024-2025" : feesList.get(0).getAcademicYear();
+        String calculatedSemester = feesList.isEmpty() ? "Fall 2024" : feesList.get(0).getSemester().getName();
+        
+        // Create fees overview object
+        return new Object() {
+            public final String studentId = student.getId();
+            public final String studentName = student.getName();
+            public final BigDecimal totalAmount = calculatedTotalAmount;
+            public final BigDecimal amountPaid = calculatedTotalPaid;
+            public final BigDecimal amountOwed = calculatedTotalOwed;
+            public final LocalDate dueDate = calculatedDueDate;
+            public final String academicYear = calculatedAcademicYear;
+            public final String semester = calculatedSemester;
+        };
     }
 
     @Override

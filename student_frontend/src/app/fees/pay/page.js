@@ -18,6 +18,7 @@ export default function FeePaymentPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [studentFees, setStudentFees] = useState(null);
+  const [amount, setAmount] = useState(null);
   const router = useRouter();
 
   // Mock student fee data
@@ -33,16 +34,21 @@ export default function FeePaymentPage() {
     async function fetchFeeData(){
       const studentId = localStorage.getItem("studentId")
       const academicYear = searchParams.get('academicYear');
-      const semesterId = searchParams.get('semester');
+      const semesterNumber = searchParams.get('semester');
       setLoading(true);
       try{
-        const res = await fetch(`http://localhost:8080/api/fees/inquiry?studentId=${studentId}&semesterId=${semesterId}&academicYear=${academicYear}`)
+        const res = await fetch(`http://localhost:8080/api/fees/inquiry?studentId=${studentId}&semesterNumber=${semesterNumber}&academicYear=${academicYear}`)
         if (!res.ok) {
           console.log(res.statusText);
         }
         const json = await res.json();
-        setStudentFees(json.data);
         console.log(json)
+
+        if (!json.success){
+          alert(`No fees detail obtained for ${academicYear} and Semester: ${semesterNumber}.`);
+          router.push('/dashboard');
+        }
+        setStudentFees(json.data);
 
       } catch (err) {
         console.log(err);
@@ -98,6 +104,7 @@ export default function FeePaymentPage() {
     }
 
     try {
+      const studentId = localStorage.getItem("studentId");
       const paymentPayload = {
         studentId,
         feeId: studentFees.id,
@@ -118,6 +125,7 @@ export default function FeePaymentPage() {
       });
 
       if (response.ok) {
+        setAmount(paymentData.amount);
         setSuccess(true);
         // Reset form
         setPaymentData({
@@ -170,7 +178,7 @@ export default function FeePaymentPage() {
                   <div className="ml-3">
                     <h3 className="text-sm font-medium text-green-800">Payment Successful!</h3>
                     <p className="mt-1 text-sm text-green-700">
-                      Your payment of ${paymentData.amount} has been processed successfully.
+                      Your payment of ${amount} has been processed successfully.
                     </p>
                   </div>
                 </div>
