@@ -41,8 +41,10 @@ public class Payments {
     private boolean isActive = true;
 
     @ManyToOne
+    @JoinColumn(name = "student_id")
     private Students student;
 
     @ManyToOne
+    @JoinColumn(name = "fees_id")
     private Fees fees;
 }

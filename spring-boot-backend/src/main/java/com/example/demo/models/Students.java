@@ -33,15 +33,10 @@ public class Students{
   @OneToMany(mappedBy = "student")
   private List<Fees> fees;
 
-  @ManyToMany
-  @JoinTable(
-    name = "course_enrollments",
-    joinColumns = @JoinColumn(name = "student_id"),
-    inverseJoinColumns = @JoinColumn(name = "course_id")
-  )
-  private Set<Courses> courses;
+  @OneToMany(mappedBy = "student")
+  private List<CourseEnrollments> enrollments;
 
-  @OneToMany
+  @OneToMany(mappedBy = "student")
   private List<Payments> payments;
 
   public Students(String id, String name, LocalDate dob, String email){

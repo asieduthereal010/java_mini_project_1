@@ -42,6 +42,6 @@ public class Fees {
   @JoinColumn(name = "semester_id")
   private Semesters semester;
 
-  @OneToMany
+  @OneToMany(mappedBy = "fees")
   private List<Payments> payments;
 }

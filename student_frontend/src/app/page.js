@@ -1,10 +1,7 @@
-'use client';
-
-import { useRouter } from 'next/navigation';
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  const router = useRouter();
-
+  redirect("/login")
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Navigation Header */}
