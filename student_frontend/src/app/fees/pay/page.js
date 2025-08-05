@@ -2,23 +2,29 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSearchParams } from 'next/navigation';
 
 export default function FeePaymentPage() {
-  const searchParams = useSearchParams();
   const [paymentData, setPaymentData] = useState({
     amount: '',
     paymentMethod: 'credit_card',
     cardNumber: '',
     cardHolderName: '',
     expiryDate: '',
-    cvv: ''
+    cvv: '',
+    academicYear: '',
+    semester: ''
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [studentFees, setStudentFees] = useState(null);
   const router = useRouter();
+
+  // Generate academic year options from 2020 to 2025
+  const academicYearOptions = [];
+  for (let year = 2020; year <= 2025; year++) {
+    academicYearOptions.push(`${year}-${year + 1}`);
+  }
 
   // Mock student fee data
   const mockStudentFees = {
@@ -30,27 +36,7 @@ export default function FeePaymentPage() {
 
   useEffect(() => {
     // Load student fee data
-    async function fetchFeeData(){
-      const studentId = localStorage.getItem("studentId")
-      const academicYear = searchParams.get('academicYear');
-      const semesterId = searchParams.get('semester');
-      setLoading(true);
-      try{
-        const res = await fetch(`http://localhost:8080/api/fees/inquiry?studentId=${studentId}&semesterId=${semesterId}&academicYear=${academicYear}`)
-        if (!res.ok) {
-          console.log(res.statusText);
-        }
-        const json = await res.json();
-        setStudentFees(json.data);
-        console.log(json)
-
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchFeeData();
+    setStudentFees(mockStudentFees);
   }, []);
 
   const handleInputChange = (e) => {
@@ -69,6 +55,14 @@ export default function FeePaymentPage() {
   };
 
   const validateForm = () => {
+    if (!paymentData.academicYear) {
+      setError('Please select an academic year');
+      return false;
+    }
+    if (!paymentData.semester) {
+      setError('Please select a semester');
+      return false;
+    }
     if (!paymentData.amount || parseFloat(paymentData.amount) <= 0) {
       setError('Please enter a valid payment amount');
       return false;
@@ -99,13 +93,13 @@ export default function FeePaymentPage() {
 
     try {
       const paymentPayload = {
-        studentId,
-        feeId: studentFees.id,
         amount: parseFloat(paymentData.amount),
         paymentMethod: paymentData.paymentMethod,
         paymentDate: new Date().toISOString(),
         transactionId: `TXN${Date.now()}`,
-        status: 'completed'
+        status: 'completed',
+        academicYear: paymentData.academicYear,
+        semester: paymentData.semester
       };
 
       // Simulate API call
@@ -126,7 +120,9 @@ export default function FeePaymentPage() {
           cardNumber: '',
           cardHolderName: '',
           expiryDate: '',
-          cvv: ''
+          cvv: '',
+          academicYear: '',
+          semester: ''
         });
         // Update local fee data
         setStudentFees(prev => ({
@@ -150,13 +146,13 @@ export default function FeePaymentPage() {
       {/* Page Header with Back Button */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Fee Payment</h1>
-          <p className="mt-2 text-gray-600">Make a payment towards your outstanding fees</p>
+          <h1 className="text-3xl font-bold text-black">Fee Payment</h1>
+          <p className="mt-2 text-black">Make a payment towards your outstanding fees</p>
         </div>
         <button
           type="button"
           onClick={() => router.push('/dashboard')}
-          className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+          className="bg-gray-200 hover:bg-gray-300 text-black px-4 py-2 rounded-md text-sm font-medium transition-colors"
         >
           Back
         </button>
@@ -166,7 +162,7 @@ export default function FeePaymentPage() {
         {/* Payment Form */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Payment Details</h2>
+            <h2 className="text-xl font-semibold text-black mb-6">Payment Details</h2>
             
             {success && (
               <div className="mb-6 rounded-md bg-green-50 p-4">
@@ -193,9 +189,46 @@ export default function FeePaymentPage() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Academic Year and Semester */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="academicYear" className="block text-sm font-medium text-black mb-2">
+                    Academic Year
+                  </label>
+                  <select
+                    id="academicYear"
+                    name="academicYear"
+                    value={paymentData.academicYear}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value="">Select Academic Year</option>
+                    {academicYearOptions.map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="semester" className="block text-sm font-medium text-black mb-2">
+                    Semester
+                  </label>
+                  <select
+                    id="semester"
+                    name="semester"
+                    value={paymentData.semester}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value="">Select Semester</option>
+                    <option value="1">Semester 1</option>
+                    <option value="2">Semester 2</option>
+                  </select>
+                </div>
+              </div>
+
               {/* Payment Amount */}
               <div>
-                <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="amount" className="block text-sm font-medium text-black mb-2">
                   Payment Amount ($)
                 </label>
                 <input
@@ -211,14 +244,14 @@ export default function FeePaymentPage() {
                   value={paymentData.amount}
                   onChange={handleInputChange}
                 />
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-black">
                   Maximum amount: ${studentFees?.amountOwed.toFixed(2)}
                 </p>
               </div>
 
               {/* Payment Method */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-black mb-2">
                   Payment Method
                 </label>
                 <div className="space-y-3">
@@ -231,7 +264,7 @@ export default function FeePaymentPage() {
                       onChange={() => handlePaymentMethodChange('credit_card')}
                       className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
                     />
-                    <span className="ml-3 text-sm text-gray-700">Credit Card</span>
+                    <span className="ml-3 text-sm text-black">Credit Card</span>
                   </label>
                   <label className="flex items-center">
                     <input
@@ -242,7 +275,7 @@ export default function FeePaymentPage() {
                       onChange={() => handlePaymentMethodChange('bank_transfer')}
                       className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
                     />
-                    <span className="ml-3 text-sm text-gray-700">Bank Transfer</span>
+                    <span className="ml-3 text-sm text-black">Bank Transfer</span>
                   </label>
                 </div>
               </div>
@@ -251,7 +284,7 @@ export default function FeePaymentPage() {
               {paymentData.paymentMethod === 'credit_card' && (
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="cardNumber" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="cardNumber" className="block text-sm font-medium text-black mb-2">
                       Card Number
                     </label>
                     <input
@@ -265,7 +298,7 @@ export default function FeePaymentPage() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="cardHolderName" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="cardHolderName" className="block text-sm font-medium text-black mb-2">
                       Cardholder Name
                     </label>
                     <input
@@ -280,7 +313,7 @@ export default function FeePaymentPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="expiryDate" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label htmlFor="expiryDate" className="block text-sm font-medium text-black mb-2">
                         Expiry Date
                       </label>
                       <input
@@ -294,7 +327,7 @@ export default function FeePaymentPage() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="cvv" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label htmlFor="cvv" className="block text-sm font-medium text-black mb-2">
                         CVV
                       </label>
                       <input
@@ -335,24 +368,24 @@ export default function FeePaymentPage() {
         {/* Fee Summary */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Fee Summary</h3>
+            <h3 className="text-lg font-medium text-black mb-4">Fee Summary</h3>
             <div className="space-y-4">
               <div className="flex justify-between">
-                <span className="text-gray-600">Total Fees:</span>
+                <span className="text-black">Total Fees:</span>
                 <span className="font-medium">${studentFees?.totalAmount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Amount Paid:</span>
+                <span className="text-black">Amount Paid:</span>
                 <span className="font-medium text-green-600">${studentFees?.amountPaid.toFixed(2)}</span>
               </div>
               <div className="border-t pt-4">
                 <div className="flex justify-between">
-                  <span className="text-lg font-medium text-gray-900">Outstanding Balance:</span>
+                  <span className="text-lg font-medium text-black">Outstanding Balance:</span>
                   <span className="text-lg font-bold text-red-600">${studentFees?.amountOwed.toFixed(2)}</span>
                 </div>
               </div>
               <div className="mt-4">
-                <div className="flex justify-between text-sm text-gray-600 mb-2">
+                <div className="flex justify-between text-sm text-black mb-2">
                   <span>Payment Progress</span>
                   <span>{((studentFees?.amountPaid / studentFees?.totalAmount) * 100).toFixed(1)}%</span>
                 </div>

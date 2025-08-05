@@ -10,11 +10,14 @@ import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.HttpStatus.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 @RestController
 @RequestMapping("/api/fees")
 @AllArgsConstructor
 public class FeesController {
-    private final IFeesService feesService;
+  @Autowired
+  private final IFeesService feesService;
 
     @GetMapping("/inquiry")
     public ResponseEntity<ApiResponse> getFeesDetail(@ModelAttribute FeeInquiryRequest request) {

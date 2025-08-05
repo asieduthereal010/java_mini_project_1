@@ -1,0 +1,24 @@
+University of Ghana Web App Color Palette
+
+Primary Colors
+UG Blue: #153D70
+UG Gold: #BA8F4A
+
+Neutral Colors
+Darkest Gray: #333333
+Medium Gray: #666666
+Light Gray: #999999
+Off-White: #F8F8F8
+White: #FFFFFF
+
+Accent & Semantic Colors
+Success Green: #28A745
+Error Red: #DC3545
+Warning Orange: #FFC107
+Link Blue: #007BFF
+
+Dark Mode Colors
+Dark Background: #121212
+Dark Card: #1E1E1E
+Dark Text: #E0E0E0
+Dark Accent Gold: #F3C018
