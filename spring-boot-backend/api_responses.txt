@@ -90,7 +90,7 @@ Response:
       "studentId": "STU001",
       "amount": 1500.00,
       "paymentMethod": "credit_card",
-      "paymentDate": "2024-01-15T10:30:00Z",
+      "paymentDate": "2024-01-15T10:30:00",
       "transactionId": "TXN20240115001",
       "status": "completed",
       "description": "Tuition Fee Payment",
@@ -102,7 +102,7 @@ Response:
       "studentId": "STU001",
       "amount": 1000.00,
       "paymentMethod": "bank_transfer",
-      "paymentDate": "2024-02-20T14:15:00Z",
+      "paymentDate": "2024-02-20T14:15:00",
       "transactionId": "TXN20240220001",
       "status": "completed",
       "description": "Course Registration Fee",
@@ -114,7 +114,7 @@ Response:
       "studentId": "STU001",
       "amount": 500.00,
       "paymentMethod": "credit_card",
-      "paymentDate": "2024-03-10T09:45:00Z",
+      "paymentDate": "2024-03-10T09:45:00",
       "transactionId": "TXN20240310001",
       "status": "completed",
       "description": "Partial Tuition Payment",
@@ -125,110 +125,113 @@ Response:
   "summary": {
     "totalPaid": 3000.00,
     "totalTransactions": 3,
-    "lastPaymentDate": "2024-03-10T09:45:00Z"
+    "lastPaymentDate": "2024-03-10T09:45:00"
   }
 }
 
-3. FEE OVERVIEW API RESPONSE
-============================
+3. COURSE REGISTRATION API
+==========================
 
-Endpoint: GET /api/student/fees/overview?studentId=STU001
-
-Response:
-{
-  "studentId": "STU001",
-  "studentName": "John Doe",
-  "totalAmount": 5000.00,
-  "amountPaid": 3800.00,
-  "amountOwed": 1200.00,
-  "dueDate": "2024-12-31",
-  "paymentHistory": [
-    {
-      "id": "PAY001",
-      "amount": 1500.00,
-      "date": "2024-01-15",
-      "description": "Tuition Fee Payment"
-    },
-    {
-      "id": "PAY002",
-      "amount": 1000.00,
-      "date": "2024-02-20",
-      "description": "Course Registration Fee"
-    },
-    {
-      "id": "PAY003",
-      "amount": 500.00,
-      "date": "2024-03-10",
-      "description": "Partial Tuition Payment"
-    },
-    {
-      "id": "PAY004",
-      "amount": 800.00,
-      "date": "2024-04-05",
-      "description": "Library and Lab Fees"
-    }
-  ],
-  "feeBreakdown": [
-    {
-      "category": "Tuition Fees",
-      "amount": 3000.00,
-      "paid": 2500.00,
-      "remaining": 500.00
-    },
-    {
-      "category": "Course Registration",
-      "amount": 1000.00,
-      "paid": 1000.00,
-      "remaining": 0.00
-    },
-    {
-      "category": "Library Fees",
-      "amount": 500.00,
-      "paid": 300.00,
-      "remaining": 200.00
-    },
-    {
-      "category": "Laboratory Fees",
-      "amount": 500.00,
-      "paid": 0.00,
-      "remaining": 500.00
-    }
-  ]
-}
-
-4. MAKE PAYMENT API
-===================
-
-Endpoint: POST /api/payments
+Endpoint: POST /api/courses/register
 
 Request Body:
 {
   "studentId": "STU001",
-  "amount": 500.00,
-  "paymentMethod": "credit_card",
-  "description": "Tuition Payment"
+  "semesterId": 1,
+  "courses": [
+    {
+      "courseId": "CS201",
+      "enrollmentDate": "2024-09-01"
+    },
+    {
+      "courseId": "MATH301",
+      "enrollmentDate": "2024-09-01"
+    }
+  ]
 }
 
-Response:
+Success Response (200):
 {
-  "success": true,
+  "message": "Course registration completed successfully",
   "data": {
-    "id": "PAY005",
+    "registrationId": "REG12345678",
     "studentId": "STU001",
-    "amount": 500.00,
-    "paymentMethod": "credit_card",
-    "paymentDate": "2024-01-15T10:30:00Z",
-    "transactionId": "TXN20240115002",
-    "status": "completed",
-    "description": "Tuition Payment"
-  },
-  "message": "Payment processed successfully"
+    "semesterId": 1,
+    "semesterName": "Fall 2024",
+    "enrollments": [
+      {
+        "courseId": "CS201",
+        "courseName": "Data Structures and Algorithms",
+        "courseCode": "CS201",
+        "enrollmentDate": "2024-09-01",
+        "status": "active",
+        "fee": 1500.00
+      },
+      {
+        "courseId": "MATH301",
+        "courseName": "Linear Algebra",
+        "courseCode": "MATH301",
+        "enrollmentDate": "2024-09-01",
+        "status": "active",
+        "fee": 1500.00
+      }
+    ],
+    "totalFee": 3100.00,
+    "feeBreakdown": {
+      "courseFees": 3000.00,
+      "registrationFee": 100.00,
+      "totalAmount": 3100.00
+    },
+    "paymentDueDate": "2024-10-01",
+    "enrollmentConfirmation": {
+      "confirmationNumber": "CONF87654321",
+      "timestamp": "2024-09-01T10:30:00",
+      "status": "confirmed"
+    },
+    "warnings": null
+  }
 }
 
-5. COURSE REGISTRATION - AVAILABLE COURSES API RESPONSE
-=======================================================
+Error Responses:
 
-Endpoint: GET /api/courses/available?studentId=STU001&semesterId=1
+400 - Bad Request (Validation Error):
+{
+  "message": "Registration validation failed: Student ID is required",
+  "errorCode": "REGISTRATION_VALIDATION_ERROR",
+  "status": 400
+}
+
+404 - Not Found:
+{
+  "message": "Student not found: No student exists by that ID",
+  "data": null
+}
+
+409 - Conflict (Already Enrolled):
+{
+  "message": "Already enrolled: Already enrolled in course: CS201",
+  "errorCode": "ALREADY_ENROLLED_ERROR",
+  "status": 409
+}
+
+409 - Conflict (Capacity Reached):
+{
+  "message": "Registration validation failed: Course CS201 has reached maximum capacity",
+  "errorCode": "REGISTRATION_VALIDATION_ERROR",
+  "status": 400
+}
+
+500 - Internal Server Error:
+{
+  "message": "Error during course registration: Database connection failed",
+  "errorCode": "REGISTRATION_ERROR",
+  "status": 500
+}
+
+4. AVAILABLE COURSES API RESPONSE
+=================================
+
+Endpoint: GET /api/courses/available?studentId=STU001
 
 Response:
 {
@@ -272,7 +275,7 @@ Response:
         "name": "Data Structures and Algorithms",
         "code": "CS201",
         "credits": 3,
-        "description": "Advanced programming concepts and algorithm analysis",
+        "description": "Course description for Data Structures and Algorithms",
         "lecturer": {
           "id": "LEC004",
           "name": "Dr. Robert Wilson",
@@ -280,79 +283,35 @@ Response:
         },
         "capacity": 30,
         "enrolled": 25,
-        "semester_id": 1,
+        "semesterId": 1,
         "fee": 1500.00,
-        "prerequisites": ["CS101"],
+        "prerequisites": [],
         "schedule": {
           "days": ["Monday", "Wednesday"],
           "time": "10:00 AM - 11:30 AM",
-          "room": "Computer Lab 101"
+          "room": "Room CS201"
         }
       },
       {
         "id": "MATH301",
         "name": "Linear Algebra",
         "code": "MATH301",
-        "credits": 4,
-        "description": "Vector spaces, linear transformations, and eigenvalues",
+        "credits": 3,
+        "description": "Course description for Linear Algebra",
         "lecturer": {
           "id": "LEC005",
           "name": "Prof. Lisa Anderson",
           "email": "lisa.anderson@university.edu"
         },
-        "capacity": 25,
+        "capacity": 30,
         "enrolled": 20,
-        "semester_id": 1,
-        "fee": 1200.00,
-        "prerequisites": ["MATH201"],
-        "schedule": {
-          "days": ["Tuesday", "Thursday"],
-          "time": "2:00 PM - 3:30 PM",
-          "room": "Mathematics Building 205"
-        }
-      },
-      {
-        "id": "ENG201",
-        "name": "Advanced Writing",
-        "code": "ENG201",
-        "credits": 3,
-        "description": "Advanced composition and rhetoric",
-        "lecturer": {
-          "id": "LEC006",
-          "name": "Dr. James Brown",
-          "email": "james.brown@university.edu"
-        },
-        "capacity": 20,
-        "enrolled": 15,
-        "semester_id": 1,
-        "fee": 1000.00,
-        "prerequisites": ["ENG101"],
-        "schedule": {
-          "days": ["Monday", "Wednesday", "Friday"],
-          "time": "1:00 PM - 2:00 PM",
-          "room": "Humanities Building 103"
-        }
-      },
-      {
-        "id": "PHY101",
-        "name": "Introduction to Physics",
-        "code": "PHY101",
-        "credits": 4,
-        "description": "Fundamental principles of physics",
-        "lecturer": {
-          "id": "LEC007",
-          "name": "Dr. Maria Garcia",
-          "email": "maria.garcia@university.edu"
-        },
-        "capacity": 35,
-        "enrolled": 30,
-        "semester_id": 1,
-        "fee": 1400.00,
+        "semesterId": 1,
+        "fee": 1500.00,
         "prerequisites": [],
         "schedule": {
           "days": ["Tuesday", "Thursday"],
-          "time": "9:00 AM - 10:30 AM",
-          "room": "Physics Lab 301"
+          "time": "2:00 PM - 3:30 PM",
+          "room": "Room MATH301"
         }
       }
     ],
@@ -370,158 +329,36 @@ Response:
         "grade": null
       }
     ]
-  },
-  "message": "Available courses retrieved successfully"
+  }
 }
 
-6. COURSE REGISTRATION - SUBMIT REGISTRATION API RESPONSE
-=========================================================
+5. FEES INQUIRY API RESPONSE
+============================
 
-Endpoint: POST /api/courses/register
-
-Request Body:
-{
-  "studentId": "STU001",
-  "semesterId": 1,
-  "courses": [
-    {
-      "courseId": "CS201",
-      "enrollmentDate": "2024-01-15"
-    },
-    {
-      "courseId": "MATH301",
-      "enrollmentDate": "2024-01-15"
-    }
-  ]
-}
+Endpoint: GET /api/fees/inquiry?studentId=STU001&semesterId=1&academicYear=2024-2025
 
 Response:
 {
-  "success": true,
+  "message": "Fees details retrieved successfully",
   "data": {
-    "registrationId": "REG20240115001",
-    "studentId": "STU001",
-    "semesterId": 1,
-    "semesterName": "Fall 2024",
-    "enrollments": [
-      {
-        "courseId": "CS201",
-        "courseName": "Data Structures and Algorithms",
-        "courseCode": "CS201",
-        "enrollmentDate": "2024-01-15",
-        "status": "active",
-        "fee": 1500.00
-      },
-      {
-        "courseId": "MATH301",
-        "courseName": "Linear Algebra",
-        "courseCode": "MATH301",
-        "enrollmentDate": "2024-01-15",
-        "status": "active",
-        "fee": 1200.00
-      }
-    ],
-    "totalFee": 2700.00,
-    "feeBreakdown": {
-      "courseFees": 2700.00,
-      "registrationFee": 100.00,
-      "totalAmount": 2800.00
-    },
-    "paymentDueDate": "2024-02-15",
-    "enrollmentConfirmation": {
-      "confirmationNumber": "CONF20240115001",
-      "timestamp": "2024-01-15T10:30:00Z",
-      "status": "confirmed"
-    }
-  },
-  "message": "Course registration completed successfully"
+    "id": 1,
+    "totalAmount": 5000.00,
+    "amountPaid": 3000.00,
+    "amountOwed": 2000.00,
+    "dueDate": "2024-12-31",
+    "academicYear": "2024-2025",
+    "semester": "Fall 2024"
+  }
 }
 
-7. COURSE REGISTRATION - VALIDATION ERROR RESPONSE
-==================================================
-
-Endpoint: POST /api/courses/register
-
-Error Response (409 Conflict):
-{
-  "success": false,
-  "error": "Registration validation failed",
-  "code": "REGISTRATION_VALIDATION_ERROR",
-  "details": [
-    {
-      "courseId": "CS201",
-      "error": "Prerequisite CS101 not completed"
-    },
-    {
-      "courseId": "MATH301",
-      "error": "Course capacity reached"
-    }
-  ],
-  "status": 409
-}
-
-Error Response (400 Bad Request):
-{
-  "success": false,
-  "error": "Invalid registration data",
-  "code": "INVALID_REGISTRATION_DATA",
-  "details": [
-    "Semester ID is required",
-    "At least one course must be selected"
-  ],
-  "status": 400
-}
-
-8. COURSE REGISTRATION - CONFLICT ERROR RESPONSE
-================================================
-
-Endpoint: POST /api/courses/register
-
-Error Response (409 Conflict):
-{
-  "success": false,
-  "error": "Course enrollment conflicts detected",
-  "code": "SCHEDULE_CONFLICT",
-  "details": [
-    {
-      "courseId": "CS201",
-      "conflictWith": "MATH301",
-      "conflictType": "time_overlap",
-      "description": "Both courses have overlapping class times on Monday 10:00 AM"
-    }
-  ],
-  "status": 409
-}
-
-9. COURSE REGISTRATION - ALREADY ENROLLED ERROR
-===============================================
-
-Endpoint: POST /api/courses/register
-
-Error Response (409 Conflict):
-{
-  "success": false,
-  "error": "Already enrolled in selected courses",
-  "code": "ALREADY_ENROLLED",
-  "details": [
-    {
-      "courseId": "CS201",
-      "courseName": "Data Structures and Algorithms",
-      "enrollmentDate": "2024-09-01",
-      "status": "active"
-    }
-  ],
-  "status": 409
-}
-
-10. COURSE REGISTRATION - FEE CALCULATION API RESPONSE
-=====================================================
+6. FEE CALCULATION API RESPONSE
+===============================
 
 Endpoint: GET /api/courses/fees/calculate?studentId=STU001&semesterId=1&courseIds=CS201,MATH301
 
 Response:
 {
-  "success": true,
+  "message": "Fee calculation completed successfully",
   "data": {
     "studentId": "STU001",
     "semesterId": 1,
@@ -538,105 +375,32 @@ Response:
         "courseId": "MATH301",
         "courseName": "Linear Algebra",
         "courseCode": "MATH301",
-        "credits": 4,
-        "fee": 1200.00
+        "credits": 3,
+        "fee": 1500.00
       }
     ],
     "feeBreakdown": {
-      "courseFees": 2700.00,
+      "courseFees": 3000.00,
       "registrationFee": 100.00,
       "technologyFee": 50.00,
-      "totalAmount": 2850.00
+      "totalAmount": 3150.00
     },
     "paymentOptions": {
       "fullPayment": {
-        "amount": 2850.00,
-        "dueDate": "2024-02-15",
+        "amount": 3150.00,
+        "dueDate": "2024-10-01",
         "discount": 0.00
       },
       "installmentPlan": {
-        "amount": 2850.00,
-        "installments": 3,
-        "amountPerInstallment": 950.00,
-        "dueDates": ["2024-02-15", "2024-03-15", "2024-04-15"]
+        "totalAmount": 3150.00,
+        "numberOfInstallments": 3,
+        "installmentAmount": 1050.00,
+        "installmentDates": [
+          "2024-10-01",
+          "2024-11-01",
+          "2024-12-01"
+        ]
       }
     }
-  },
-  "message": "Fee calculation completed successfully"
-}
-
-11. ERROR RESPONSE FORMAT
-========================
-
-{
-  "error": "Student not found",
-  "code": "STUDENT_NOT_FOUND",
-  "status": 404
-}
-
-12. SUCCESS RESPONSE FORMAT
-==========================
-
-{
-  "success": true,
-  "data": { /* your data here */ },
-  "message": "Data retrieved successfully"
-}
-
-13. COMPLETE API ENDPOINTS LIST
-==============================
-
-GET /api/student/dashboard?studentId=STU001
-- Returns main dashboard data with courses, fees, and student info
-
-GET /api/student/payments?studentId=STU001
-- Returns payment history for the student
-
-GET /api/student/fees/overview?studentId=STU001
-- Returns detailed fee breakdown and payment history
-
-POST /api/payments
-- Processes a new payment
-
-GET /api/auth/login
-- Student login endpoint
-
-GET /api/courses/available?studentId=STU001&semesterId=1
-- Get available courses for registration with semester filtering
-
-POST /api/courses/register
-- Register for new courses
-
-GET /api/courses/fees/calculate?studentId=STU001&semesterId=1&courseIds=CS201,MATH301
-- Calculate fees for selected courses
-
-14. FRONTEND INTEGRATION NOTES
-==============================
-
-- All amounts are in decimal format (e.g., 5000.00)
-- Dates are in ISO 8601 format (e.g., "2024-01-15T10:30:00Z")
-- Student IDs are strings (e.g., "STU001")
-- Course IDs are strings (e.g., "CS201")
-- Semester IDs are integers (e.g., 1, 2, 3)
-- Payment methods: "credit_card", "bank_transfer", "cash"
-- Payment status: "pending", "completed", "failed", "refunded"
-- Course status: "active", "dropped", "completed"
-- Enrollment status: "active", "dropped", "completed"
-- Grades: "A", "B", "C", "D", "F", "W" (withdrawal)
-- Course capacity and enrollment tracking
-- Prerequisite validation
-- Schedule conflict detection
-- Fee calculation with breakdowns
-
-15. AUTHENTICATION
-==================
-
-All API calls should include:
-- Authorization header with JWT token
-- Content-Type: application/json for POST requests
-
-Example:
-Headers: {
-  "Authorization": "Bearer <jwt_token>",
-  "Content-Type": "application/json"
+  }
 } 

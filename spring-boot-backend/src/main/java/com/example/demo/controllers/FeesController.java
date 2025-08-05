@@ -23,7 +23,7 @@ public class FeesController {
             return ResponseEntity.ok(new ApiResponse("Fees details retrieved successfully", feesDetail));
         } catch (Exception e) {
             return ResponseEntity.status(INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse("Error retrieving fees details: " + e.getMessage(), null));
+                    .body(new ApiResponse("Error retrieving fees details: " + e.getMessage(), "Internal Server Error", 500));
         }
     }
 } 

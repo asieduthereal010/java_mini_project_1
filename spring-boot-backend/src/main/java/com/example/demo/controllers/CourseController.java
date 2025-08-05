@@ -12,6 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.HttpStatus.*;
+import com.example.demo.exceptions.ResourceNotFoundException;
+import com.example.demo.exceptions.RegistrationValidationException;
+import com.example.demo.exceptions.AlreadyEnrolledException;
+import com.example.demo.exceptions.ScheduleConflictException;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -35,14 +39,26 @@ public class CourseController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> registerCourse(@RequestBody CourseRegistrationRequest request) {
         try {
-            courseService.registerCourses(request);
-            return ResponseEntity.ok(new ApiResponse("Course registration completed successfully", null));
-        } catch (StudentNotFoundException e){
+            Object registrationResult = courseService.registerCourses(request);
+            return ResponseEntity.ok(new ApiResponse("Course registration completed successfully", registrationResult));
+        } catch (StudentNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND)
-                    .body(new ApiResponse("Student not found", null));
-        } catch (Exception e) {
+                    .body(new ApiResponse("Student not found: " + e.getMessage(), null));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(new ApiResponse("Resource not found: " + e.getMessage(), null));
+        } catch (RegistrationValidationException e) {
+            return ResponseEntity.status(BAD_REQUEST)
+                    .body(new ApiResponse("Registration validation failed: " + e.getMessage(), "REGISTRATION_VALIDATION_ERROR", 400));
+        } catch (AlreadyEnrolledException e) {
             return ResponseEntity.status(CONFLICT)
-                    .body(new ApiResponse("Registration validation failed", "REGISTRATION_VALIDATION_ERROR", 409, e.getMessage()));
+                    .body(new ApiResponse("Already enrolled: " + e.getMessage(), "ALREADY_ENROLLED_ERROR", 409));
+        } catch (ScheduleConflictException e) {
+            return ResponseEntity.status(CONFLICT)
+                    .body(new ApiResponse("Schedule conflict: " + e.getMessage(), "SCHEDULE_CONFLICT_ERROR", 409));
+        } catch (Exception e) {
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("Error during course registration: " + e.getMessage(), "REGISTRATION_ERROR", 500));
         }
     }
 

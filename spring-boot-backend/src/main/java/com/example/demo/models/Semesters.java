@@ -24,11 +24,14 @@ public class Semesters {
     @Column(length = 50)
     private String name;
     private int year;
+    private int semesterNumber;
     @Column(length = 20)
     private String semesterType;
     private LocalDate startDate;
     private LocalDate endDate;
     private boolean isActive = true;
+    @Column(length = 9)
+    private String academicYear;
 
     @OneToMany
     private List<Fees> fees;
@@ -36,9 +39,10 @@ public class Semesters {
     @OneToMany
     private List<Courses> courses;
 
-    public Semesters(String name, int year, String semesterType, LocalDate startDate, LocalDate endDate) {
+    public Semesters(String name, int year, String semesterType, LocalDate startDate, LocalDate endDate, int semesterNumber) {
         this.name = name;
         this.year = year;
+        this.semesterNumber = semesterNumber;
         this.semesterType = semesterType;
         this.startDate = startDate;
         this.endDate = endDate;
