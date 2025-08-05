@@ -15,7 +15,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
 @Entity
 public class Fees {
@@ -44,4 +43,9 @@ public class Fees {
 
   @OneToMany(mappedBy = "fees")
   private List<Payments> payments;
+
+  public Fees(){
+    this.amountPaid = new BigDecimal(0);
+    this.totalAmount = new BigDecimal(0);
+  }
 }

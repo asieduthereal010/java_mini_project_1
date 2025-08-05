@@ -22,6 +22,5 @@ public class CourseRegistrationRequest {
     public static class CourseEnrollmentRequest {
         private String courseId;
         private LocalDate enrollmentDate;
-        private BigDecimal price;
     }
 } 

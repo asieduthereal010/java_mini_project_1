@@ -278,13 +278,13 @@ public class CourseService implements ICourseService {
                         course.getCode(),
                         enrollment.getEnrollmentDate(),
                         enrollment.getStatus(),
-                        new BigDecimal("1500.00") // Default fee per course
+                        course.getPrice()
                 ));
 
                 Fees fees = feeRepository.findByStudentId(student.getId())
                         .orElseThrow(() -> new ResourceNotFoundException("The fee was not found"));
 
-                fees.setTotalAmount(courseReq.getPrice());
+                fees.setTotalAmount(course.getPrice());
                 feeRepository.save(fees);
 
 
