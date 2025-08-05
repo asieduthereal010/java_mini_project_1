@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class FeeInquiryRequest {
     private String studentId;
-    private Long semesterId;
+    private Long semesterNumber;
     private String academicYear;
 }

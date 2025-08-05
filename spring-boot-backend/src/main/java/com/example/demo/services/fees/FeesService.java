@@ -3,6 +3,7 @@ package com.example.demo.services.fees;
 import com.example.demo.dtos.FeesDTO;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.exceptions.StudentNotFoundException;
+import com.example.demo.models.Fees;
 import com.example.demo.models.Semesters;
 import com.example.demo.models.Students;
 import com.example.demo.repositories.FeeRepository;
@@ -29,13 +30,15 @@ public class FeesService implements IFeesService{
         Students students = studentRepository.findById(request.getStudentId())
                 .orElseThrow(() -> new StudentNotFoundException("No student by that Id was found"));
 
-        Semesters semester = semestersRepository.findById(request.getSemesterId())
-                .orElseThrow(() -> new ResourceNotFoundException("The semester with this Id was not found"));
+        Semesters semester = semestersRepository.findByAcademicYearAndSemesterNumber(request.getAcademicYear(), request.getSemesterNumber())
+                .orElseThrow(() -> new ResourceNotFoundException("The semester was not found"));
 
-//        Fees fee = feeRepository.findByAcademicYearAndStudentIdAndSemesterId(request.getAcademicYear(), students.getId(), semester.getId())
-//                .orElseThrow(()-> new ResourceNotFoundException("This fee does not exist"));
-//        return modelmapper.map(fee, FeesOverviewDTO.class);
-        return getMockFees();
+        Fees fee = feeRepository.findByAcademicYearAndStudentIdAndSemesterId(request.getAcademicYear(), students.getId(), semester.getId())
+                .orElseThrow(()-> new ResourceNotFoundException("This fee does not exist"));
+        FeesDTO feesDTO = modelmapper.map(fee, FeesDTO.class);
+        feesDTO.setAmountOwed(fee.getTotalAmount().subtract(fee.getAmountPaid()));
+        return feesDTO;
+//        return getMockFees();
     }
 
     private FeesDTO getMockFees() {

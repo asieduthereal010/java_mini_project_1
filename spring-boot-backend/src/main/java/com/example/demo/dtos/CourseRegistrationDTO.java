@@ -22,6 +22,7 @@ public class CourseRegistrationDTO {
     private FeeBreakdownDTO feeBreakdown;
     private LocalDate paymentDueDate;
     private EnrollmentConfirmationDTO enrollmentConfirmation;
+    private List<String> warnings; // For partial registration failures
     
     @Data
     @AllArgsConstructor

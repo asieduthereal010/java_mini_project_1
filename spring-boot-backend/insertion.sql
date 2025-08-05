@@ -3,26 +3,19 @@
 
 -- Insert Semesters data
 -- =====================
-INSERT INTO semesters (id, name, year, semester_type, start_date, end_date, is_active) VALUES
-(1, 'Fall 2024', 2024, 'Fall', '2024-09-01', '2024-12-15', true),
-(2, 'Spring 2025', 2025, 'Spring', '2025-01-15', '2025-05-01', true),
-(3, 'Summer 2025', 2025, 'Summer', '2025-06-01', '2025-08-15', false),
-(4, 'Fall 2023', 2023, 'Fall', '2023-09-01', '2023-12-15', false),
-(5, 'Spring 2024', 2024, 'Spring', '2024-01-15', '2024-05-01', false);
+INSERT INTO semesters (id, name, year, semester_type, start_date, end_date, is_active, academic_year, semester_number) VALUES
+(1, 'Fall 2024', 2024, 'Fall', '2024-09-01', '2024-12-15', true, '2024-2025', 1),
+(2, 'Spring 2024', 2024, 'Spring', '2024-01-15', '2024-05-01', false, '2024-2025', 2),
+(3, 'Spring 2025', 2025, 'Spring', '2025-01-15', '2025-05-01', true, '2025-2026', 1),
+(4, 'Summer 2025', 2025, 'Summer', '2025-06-01', '2025-08-15', false, '2025-2026', 2),
+(5, 'Fall 2023', 2023, 'Fall', '2023-09-01', '2023-12-15', false, '2023-2024', 1);
+
 
 -- Insert Students data
 -- ====================
 INSERT INTO students (id, name, date_of_birth, email) VALUES
-('STU001', 'John Doe', '1995-03-15', 'john.doe@university.edu'),
-('STU002', 'Jane Smith', '1997-07-22', 'jane.smith@university.edu'),
-('STU003', 'Michael Johnson', '1996-11-08', 'michael.johnson@university.edu'),
-('STU004', 'Sarah Wilson', '1998-04-30', 'sarah.wilson@university.edu'),
-('STU005', 'David Brown', '1994-09-12', 'david.brown@university.edu'),
-('STU006', 'Emily Davis', '1999-01-25', 'emily.davis@university.edu'),
-('STU007', 'Robert Miller', '1993-12-03', 'robert.miller@university.edu'),
-('STU008', 'Lisa Anderson', '1996-06-18', 'lisa.anderson@university.edu'),
-('STU009', 'James Taylor', '1995-08-07', 'james.taylor@university.edu'),
-('STU010', 'Maria Garcia', '1997-02-14', 'maria.garcia@university.edu');
+('STU001', 'John Doe', '1995-03-15', 'john.doe@university.edu');
+
 
 -- Insert Lecturers data
 -- =====================
@@ -75,15 +68,11 @@ INSERT INTO courses (id, name, code, semester_id) VALUES
 -- ================
 INSERT INTO fees (id, total_amount, amount_paid, academic_year, due_date, created_at, updated_at, student_id, semester_id) VALUES
 (1, 5000.00, 3000.00, '2024-2025', '2024-12-31', '2024-09-01', '2024-11-15', 'STU001', 1),
-(2, 5000.00, 4500.00, '2024-2025', '2024-12-31', '2024-09-01', '2024-11-20', 'STU002', 1),
+(2, 5000.00, 4500.00, '2024-2025', '2024-12-31', '2024-09-01', '2024-11-20', 'STU002', 2),
 (3, 5000.00, 5000.00, '2024-2025', '2024-12-31', '2024-09-01', '2024-10-15', 'STU003', 1),
-(4, 5000.00, 2000.00, '2024-2025', '2024-12-31', '2024-09-01', '2024-11-10', 'STU004', 1),
-(5, 5000.00, 3800.00, '2024-2025', '2024-12-31', '2024-09-01', '2024-11-25', 'STU005', 1),
-(6, 5000.00, 1500.00, '2024-2025', '2024-12-31', '2024-09-01', '2024-11-05', 'STU006', 1),
-(7, 5000.00, 4200.00, '2024-2025', '2024-12-31', '2024-09-01', '2024-11-18', 'STU007', 1),
-(8, 5000.00, 5000.00, '2024-2025', '2024-12-31', '2024-09-01', '2024-09-30', 'STU008', 1),
-(9, 5000.00, 2800.00, '2024-2025', '2024-12-31', '2024-09-01', '2024-11-12', 'STU009', 1),
-(10, 5000.00, 3500.00, '2024-2025', '2024-12-31', '2024-09-01', '2024-11-22', 'STU010', 1);
+(4, 5000.00, 2000.00, '2024-2025', '2024-12-31', '2024-09-01', '2024-11-10', 'STU004', 2),
+(5, 5000.00, 3800.00, '2024-2025', '2024-12-31', '2024-09-01', '2024-11-25', 'STU005', 1);
+
 
 -- Insert Course-Lecturer relationships
 -- ====================================
@@ -138,29 +127,22 @@ INSERT INTO course_enrollments (student_id, course_id) VALUES
 ('STU004', 'CS101'),
 ('STU004', 'MATH201'),
 ('STU005', 'CS301'),
-('STU005', 'PHY201'),
-('STU006', 'CS101'),
-('STU006', 'ENG101'),
-('STU007', 'CS401'),
-('STU007', 'MATH301'),
-('STU008', 'CS201'),
-('STU008', 'ENG201'),
-('STU009', 'CS101'),
-('STU009', 'MATH101'),
-('STU010', 'CS301'),
-('STU010', 'PHY101');
+('STU005', 'PHY201');
 
 -- Insert Payments data (if you have a separate payments table)
 -- ============================================================
 -- Note: This assumes you have a payments table. If not, you can create one or modify as needed.
 
 -- Sample payment records for demonstration
--- INSERT INTO payments (id, student_id, amount, payment_method, payment_date, transaction_id, status, description, fee_id) VALUES
--- ('PAY001', 'STU001', 1500.00, 'credit_card', '2024-01-15 10:30:00', 'TXN20240115001', 'completed', 'Tuition Fee Payment', 1),
--- ('PAY002', 'STU001', 1000.00, 'bank_transfer', '2024-02-20 14:15:00', 'TXN20240220001', 'completed', 'Course Registration Fee', 1),
--- ('PAY003', 'STU001', 500.00, 'credit_card', '2024-03-10 09:45:00', 'TXN20240310001', 'completed', 'Partial Tuition Payment', 1),
--- ('PAY004', 'STU002', 2000.00, 'credit_card', '2024-01-20 11:00:00', 'TXN20240120001', 'completed', 'Tuition Fee Payment', 2),
--- ('PAY005', 'STU002', 2500.00, 'bank_transfer', '2024-02-25 16:30:00', 'TXN20240225001', 'completed', 'Course Registration Fee', 2);
+INSERT INTO payments (transaction_id, student_id, amount, payment_method, payment_date, status, description, fees_id) VALUES
+('TXN20240115001', 'STU001', 1500.00, 'credit_card', '2024-01-15 10:30:00', 'completed', 'Tuition Fee Payment', 1),
+('TXN20240220001', 'STU001', 1000.00, 'bank_transfer', '2024-02-20 14:15:00', 'completed', 'Course Registration Fee', 1),
+('TXN20240310001', 'STU001', 500.00, 'credit_card', '2024-03-10 09:45:00', 'completed', 'Partial Tuition Payment', 1),
+('TXN20240120001', 'STU002', 2000.00, 'credit_card', '2024-01-20 11:00:00', 'completed', 'Tuition Fee Payment', 2),
+('TXN20240225001', 'STU002', 2500.00, 'bank_transfer', '2024-02-25 16:30:00', 'completed', 'Course Registration Fee', 2),
+('TXN20240130001', 'STU003', 3000.00, 'credit_card', '2024-01-30 13:20:00', 'completed', 'Tuition Fee Payment', 3),
+('TXN20240205001', 'STU004', 1500.00, 'bank_transfer', '2024-02-05 15:45:00', 'completed', 'Partial Tuition Payment', 4),
+('TXN20240215001', 'STU005', 2000.00, 'credit_card', '2024-02-15 09:30:00', 'completed', 'Tuition Fee Payment', 5);
 
 -- Additional sample data for different semesters
 -- ==============================================
