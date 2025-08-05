@@ -154,7 +154,7 @@ export default function CourseRegistrationPage() {
         }))
       };
 
-      const response = await fetch('/api/courses/register', {
+      const response = await fetch('http://localhost:8080/api/courses/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

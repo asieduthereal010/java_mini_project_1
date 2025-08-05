@@ -15,6 +15,7 @@ import com.example.demo.repositories.LecturerRepository;
 import com.example.demo.requests.course_enrollments.DeleteCourse;
 import com.example.demo.requests.course_enrollments.RegisterCourses;
 import com.example.demo.requests.courses.CourseRegistrationRequest;
+import com.example.demo.requests.courses.CreateCourseRequest;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -357,6 +358,12 @@ public class CourseService implements ICourseService {
 
         courseEnrollments.setStatus("dropped"); // Dropped the course
         courseEnrollments.setGrade("W"); // Withdrawn
+    }
+
+    @Override
+    public CourseDto createCourse(CreateCourseRequest request) {
+        Courses course = new Courses();
+        return null;
     }
 
     // Helper methods for validation and mock data
