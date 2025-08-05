@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -21,5 +22,6 @@ public class CourseRegistrationRequest {
     public static class CourseEnrollmentRequest {
         private String courseId;
         private LocalDate enrollmentDate;
+        private BigDecimal price;
     }
 } 

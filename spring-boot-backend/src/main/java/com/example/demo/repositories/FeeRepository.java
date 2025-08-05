@@ -13,4 +13,6 @@ public interface FeeRepository extends JpaRepository<Fees, Long> {
     Optional<Fees> findByAcademicYearAndStudentIdAndSemesterId(String academicYear, String studentId, Long SemesterId);
 
     Optional<List<Fees>> findAllByStudentId(String studentId);
+
+    Optional<Fees> findByStudentId(String studentId);
 }

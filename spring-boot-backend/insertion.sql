@@ -54,11 +54,11 @@ INSERT INTO courses (id, name, code, semester_id) VALUES
 -- Insert Fees data
 -- ================
 INSERT INTO fees (id, total_amount, amount_paid, academic_year, due_date, created_at, updated_at, student_id, semester_id) VALUES
-(1, 5000.00, 3000.00, '2024-2025', '2024-12-31', '2024-09-01', '2024-11-15', 'STU001', 1),
-(2, 5000.00, 4500.00, '2024-2025', '2024-12-31', '2024-09-01', '2024-11-20', 'STU002', 2),
-(3, 5000.00, 5000.00, '2024-2025', '2024-12-31', '2024-09-01', '2024-10-15', 'STU003', 1),
-(4, 5000.00, 2000.00, '2024-2025', '2024-12-31', '2024-09-01', '2024-11-10', 'STU004', 2),
-(5, 5000.00, 3800.00, '2024-2025', '2024-12-31', '2024-09-01', '2024-11-25', 'STU005', 1);
+(1, 0, 0, '2024-2025', '2024-12-31', '2024-09-01', '2024-11-15', 'STU001', 1),
+(2, 0, 0, '2024-2025', '2024-12-31', '2024-09-01', '2024-11-20', 'STU002', 2),
+(3, 0, 0, '2024-2025', '2024-12-31', '2024-09-01', '2024-10-15', 'STU003', 1),
+(4, 0, 0, '2024-2025', '2024-12-31', '2024-09-01', '2024-11-10', 'STU004', 2),
+(5, 0, 0, '2024-2025', '2024-12-31', '2024-09-01', '2024-11-25', 'STU005', 1);
 
 
 -- Insert Course-Lecturer relationships
@@ -86,15 +86,15 @@ INSERT INTO course_lecturers (course_id, lecturer_id) VALUES
 -- Note: This assumes you have a payments table. If not, you can create one or modify as needed.
 
 -- Sample payment records for demonstration
-INSERT INTO payments (transaction_id, student_id, amount, payment_method, payment_date, status, description, fees_id) VALUES
-('TXN20240115001', 'STU001', 1500.00, 'credit_card', '2024-01-15 10:30:00', 'completed', 'Tuition Fee Payment', 1),
-('TXN20240220001', 'STU001', 1000.00, 'bank_transfer', '2024-02-20 14:15:00', 'completed', 'Course Registration Fee', 1),
-('TXN20240310001', 'STU001', 500.00, 'credit_card', '2024-03-10 09:45:00', 'completed', 'Partial Tuition Payment', 1),
-('TXN20240120001', 'STU002', 2000.00, 'credit_card', '2024-01-20 11:00:00', 'completed', 'Tuition Fee Payment', 2),
-('TXN20240225001', 'STU002', 2500.00, 'bank_transfer', '2024-02-25 16:30:00', 'completed', 'Course Registration Fee', 2),
-('TXN20240130001', 'STU003', 3000.00, 'credit_card', '2024-01-30 13:20:00', 'completed', 'Tuition Fee Payment', 3),
-('TXN20240205001', 'STU004', 1500.00, 'bank_transfer', '2024-02-05 15:45:00', 'completed', 'Partial Tuition Payment', 4),
-('TXN20240215001', 'STU005', 2000.00, 'credit_card', '2024-02-15 09:30:00', 'completed', 'Tuition Fee Payment', 5);
+--INSERT INTO payments (transaction_id, student_id, amount, payment_method, payment_date, status, description, fees_id) VALUES
+--('TXN20240115001', 'STU001', 1500.00, 'credit_card', '2024-01-15 10:30:00', 'completed', 'Tuition Fee Payment', 1),
+--('TXN20240220001', 'STU001', 1000.00, 'bank_transfer', '2024-02-20 14:15:00', 'completed', 'Course Registration Fee', 1),
+--('TXN20240310001', 'STU001', 500.00, 'credit_card', '2024-03-10 09:45:00', 'completed', 'Partial Tuition Payment', 1),
+--('TXN20240120001', 'STU002', 2000.00, 'credit_card', '2024-01-20 11:00:00', 'completed', 'Tuition Fee Payment', 2),
+--('TXN20240225001', 'STU002', 2500.00, 'bank_transfer', '2024-02-25 16:30:00', 'completed', 'Course Registration Fee', 2),
+--('TXN20240130001', 'STU003', 3000.00, 'credit_card', '2024-01-30 13:20:00', 'completed', 'Tuition Fee Payment', 3),
+--('TXN20240205001', 'STU004', 1500.00, 'bank_transfer', '2024-02-05 15:45:00', 'completed', 'Partial Tuition Payment', 4),
+--('TXN20240215001', 'STU005', 2000.00, 'credit_card', '2024-02-15 09:30:00', 'completed', 'Tuition Fee Payment', 5);
 
 -- Update some courses for Spring 2025 semester
 INSERT INTO courses (id, name, code, semester_id) VALUES

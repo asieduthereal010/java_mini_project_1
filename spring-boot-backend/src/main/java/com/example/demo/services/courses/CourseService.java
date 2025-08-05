@@ -7,11 +7,7 @@ import com.example.demo.exceptions.RegistrationValidationException;
 import com.example.demo.exceptions.ScheduleConflictException;
 import com.example.demo.exceptions.AlreadyEnrolledException;
 import com.example.demo.models.*;
-import com.example.demo.repositories.CourseEnrollmentRepository;
-import com.example.demo.repositories.CourseRepository;
-import com.example.demo.repositories.SemestersRepository;
-import com.example.demo.repositories.StudentRepository;
-import com.example.demo.repositories.LecturerRepository;
+import com.example.demo.repositories.*;
 import com.example.demo.requests.course_enrollments.DeleteCourse;
 import com.example.demo.requests.course_enrollments.RegisterCourses;
 import com.example.demo.requests.courses.CourseRegistrationRequest;
@@ -37,6 +33,7 @@ public class CourseService implements ICourseService {
     private final CourseRepository courseRepository;
     private final CourseEnrollmentRepository courseEnrollmentRepository;
     private final LecturerRepository lecturerRepository;
+    private final FeeRepository feeRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -284,6 +281,13 @@ public class CourseService implements ICourseService {
                         new BigDecimal("1500.00") // Default fee per course
                 ));
 
+                Fees fees = feeRepository.findByStudentId(student.getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("The fee was not found"));
+
+                fees.setTotalAmount(courseReq.getPrice());
+                feeRepository.save(fees);
+
+
             } catch (Exception e) {
                 failedEnrollments.add(courseReq.getCourseId() + " - " + e.getMessage());
             }
@@ -362,8 +366,9 @@ public class CourseService implements ICourseService {
 
     @Override
     public CourseDto createCourse(CreateCourseRequest request) {
-        Courses course = new Courses();
-        return null;
+        Courses course = new Courses(request.getName(), request.getCode());
+        courseRepository.save(course);
+        return modelMapper.map(course, CourseDto.class);
     }
 
     // Helper methods for validation and mock data

@@ -127,10 +127,10 @@ public class StudentsService implements IStudentsService {
                 feesDTO = modelMapper.map(fee, FeesDTO.class);
                 feesDTO.setAmountOwed(fee.getTotalAmount().subtract(fee.getAmountPaid()));
             } else {
-                feesDTO = getMockFees(); // Fallback to mock if no fees found
+                feesDTO = new FeesDTO();
             }
         } catch (Exception e) {
-            feesDTO = getMockFees(); // Fallback to mock if error
+            feesDTO = new FeesDTO();
         }
         
         return new StudentDashboardDTO(
