@@ -31,19 +31,6 @@ INSERT INTO lecturers (id, name, date_of_birth, email) VALUES
 ('LEC009', 'Dr. Jennifer White', '1985-06-25', 'jennifer.white@university.edu'),
 ('LEC010', 'Prof. Thomas Black', '1973-10-11', 'thomas.black@university.edu');
 
--- Insert Teacher Assistants data
--- ==============================
-INSERT INTO teacher_assistants (id, name, date_of_birth, email) VALUES
-(1, 'Alex Thompson', '1992-03-14', 'alex.thompson@university.edu'),
-(2, 'Rachel Green', '1991-08-29', 'rachel.green@university.edu'),
-(3, 'Chris Martinez', '1993-12-07', 'chris.martinez@university.edu'),
-(4, 'Amanda Foster', '1990-05-16', 'amanda.foster@university.edu'),
-(5, 'Kevin Rodriguez', '1994-11-23', 'kevin.rodriguez@university.edu'),
-(6, 'Nicole Clark', '1992-09-04', 'nicole.clark@university.edu'),
-(7, 'Daniel Lewis', '1991-02-18', 'daniel.lewis@university.edu'),
-(8, 'Jessica Hall', '1993-07-31', 'jessica.hall@university.edu'),
-(9, 'Matthew Young', '1990-12-12', 'matthew.young@university.edu'),
-(10, 'Stephanie King', '1994-04-26', 'stephanie.king@university.edu');
 
 -- Insert Courses data
 -- ===================
@@ -93,41 +80,6 @@ INSERT INTO course_lecturers (course_id, lecturer_id) VALUES
 ('HIST101', 'LEC003'),
 ('ECON101', 'LEC005');
 
--- Insert Course-Teacher Assistant relationships
--- ============================================
-INSERT INTO course_lecturer_assistants (course_id, lecturer_assistant_id) VALUES
-('CS101', 1),
-('CS101', 2),
-('CS201', 3),
-('CS201', 4),
-('MATH101', 5),
-('MATH201', 6),
-('ENG101', 7),
-('ENG101', 8),
-('PHY101', 9),
-('PHY101', 10),
-('CS301', 1),
-('CS401', 2),
-('MATH301', 3),
-('ENG201', 4),
-('PHY201', 5);
-
--- Insert Student-Course enrollments
--- =================================
-INSERT INTO course_enrollments (student_id, course_id) VALUES
-('STU001', 'CS101'),
-('STU001', 'MATH201'),
-('STU001', 'ENG101'),
-('STU002', 'CS101'),
-('STU002', 'MATH101'),
-('STU002', 'PHY101'),
-('STU003', 'CS201'),
-('STU003', 'MATH301'),
-('STU003', 'ENG201'),
-('STU004', 'CS101'),
-('STU004', 'MATH201'),
-('STU005', 'CS301'),
-('STU005', 'PHY201');
 
 -- Insert Payments data (if you have a separate payments table)
 -- ============================================================
@@ -143,16 +95,6 @@ INSERT INTO payments (transaction_id, student_id, amount, payment_method, paymen
 ('TXN20240130001', 'STU003', 3000.00, 'credit_card', '2024-01-30 13:20:00', 'completed', 'Tuition Fee Payment', 3),
 ('TXN20240205001', 'STU004', 1500.00, 'bank_transfer', '2024-02-05 15:45:00', 'completed', 'Partial Tuition Payment', 4),
 ('TXN20240215001', 'STU005', 2000.00, 'credit_card', '2024-02-15 09:30:00', 'completed', 'Tuition Fee Payment', 5);
-
--- Additional sample data for different semesters
--- ==============================================
--- Spring 2025 enrollments
-INSERT INTO course_enrollments (student_id, course_id) VALUES
-('STU001', 'CS201'),
-('STU002', 'CS301'),
-('STU003', 'CS401'),
-('STU004', 'MATH301'),
-('STU005', 'ENG201');
 
 -- Update some courses for Spring 2025 semester
 INSERT INTO courses (id, name, code, semester_id) VALUES
@@ -170,21 +112,6 @@ INSERT INTO course_lecturers (course_id, lecturer_id) VALUES
 ('ENG301', 'LEC006'),
 ('PHY301', 'LEC007');
 
--- Assign teacher assistants to Spring 2025 courses
-INSERT INTO course_lecturer_assistants (course_id, lecturer_assistant_id) VALUES
-('CS501', 1),
-('CS601', 2),
-('MATH401', 3),
-('ENG301', 4),
-('PHY301', 5);
-
--- Spring 2025 enrollments
-INSERT INTO course_enrollments (student_id, course_id) VALUES
-('STU001', 'CS501'),
-('STU002', 'CS601'),
-('STU003', 'MATH401'),
-('STU004', 'ENG301'),
-('STU005', 'PHY301');
 
 -- Comments and Notes
 -- ==================

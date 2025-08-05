@@ -31,15 +31,8 @@ public class Courses {
   )
   private Set<Lecturers> lecturers;
 
-  @ManyToMany
-  @JoinTable(
-    name = "course_lecturer_assistants",
-    joinColumns = @JoinColumn(name = "course_id"),
-    inverseJoinColumns = @JoinColumn(name = "lecturer_assistant_id")
-  )
-  private Set<TeacherAssistants> teacherAssistants;
-
   @ManyToOne
+  @JoinTable(name="semester_id")
   private Semesters semester;
 
   public Courses(String name, String code){

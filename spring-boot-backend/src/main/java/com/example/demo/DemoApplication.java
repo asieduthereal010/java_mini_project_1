@@ -25,8 +25,6 @@ public class DemoApplication {
 		logger.info("🚀 Starting Student Management System...");
 		logger.info("📚 Spring Boot version: 3.5.3");
 		logger.info("☕ Java version: 21");
-		
-		SpringApplication.run(DemoApplication.class, args);
 	}
 
 	@EventListener(ApplicationReadyEvent.class)

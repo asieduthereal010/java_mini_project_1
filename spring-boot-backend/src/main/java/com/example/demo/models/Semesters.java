@@ -33,10 +33,10 @@ public class Semesters {
     @Column(length = 9)
     private String academicYear;
 
-    @OneToMany
+    @OneToMany(mappedBy = "semester")
     private List<Fees> fees;
 
-    @OneToMany
+    @OneToMany(mappedBy = "semester")
     private List<Courses> courses;
 
     public Semesters(String name, int year, String semesterType, LocalDate startDate, LocalDate endDate, int semesterNumber) {
