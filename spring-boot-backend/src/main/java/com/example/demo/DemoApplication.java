@@ -20,10 +20,10 @@ public class DemoApplication {
 		System.setProperty("SPRING_DATASOURCE_USERNAME", dotenv.get("SPRING_DATASOURCE_USERNAME"));
 		System.setProperty("SPRING_DATASOURCE_PASSWORD", dotenv.get("SPRING_DATASOURCE_PASSWORD"));
 		System.setProperty("SPRING_JPA_HIBERNATE", dotenv.get("SPRING_JPA_HIBERNATE"));
-		SpringApplication.run(DemoApplication.class, args);
 		logger.info("🚀 Starting Student Management System...");
 		logger.info("📚 Spring Boot version: 3.5.3");
 		logger.info("☕ Java version: 21");
+		SpringApplication.run(DemoApplication.class, args);
 	}
 
 	@EventListener(ApplicationReadyEvent.class)
