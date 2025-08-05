@@ -98,37 +98,37 @@ export default function Dashboard() {
   }
 
   return (
-    <div>
+    <div className="bg-[#F8F8F8] min-h-screen">
       {/* Navigation Tabs */}
       <div className="bg-white rounded-lg shadow-md mb-8">
-        <div className="border-b border-gray-200">
+        <div className="border-b border-[#999999]">
           <nav className="-mb-px flex space-x-8 px-6">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === 'overview'
-                  ? 'border-indigo-500 text-indigo-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-[#153D70] text-[#153D70]'
+                  : 'border-transparent text-[#666666] hover:text-[#153D70] hover:border-[#BA8F4A]'
               }`}
             >
               Overview
             </button>
             <button
               onClick={() => setActiveTab('courses')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === 'courses'
-                  ? 'border-indigo-500 text-indigo-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-[#153D70] text-[#153D70]'
+                  : 'border-transparent text-[#666666] hover:text-[#153D70] hover:border-[#BA8F4A]'
               }`}
             >
               My Courses
             </button>
             <button
               onClick={() => setActiveTab('lecturers')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === 'lecturers'
-                  ? 'border-indigo-500 text-indigo-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-[#153D70] text-[#153D70]'
+                  : 'border-transparent text-[#666666] hover:text-[#153D70] hover:border-[#BA8F4A]'
               }`}
             >
               My Lecturers
@@ -142,29 +142,29 @@ export default function Dashboard() {
             <div className="space-y-6">
               {/* Fee Summary Card */}
               <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Fee Summary</h3>
+                <h3 className="text-lg font-medium text-[#153D70] mb-4">Fee Summary</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="text-center">
-                    <p className="text-sm text-gray-600">Total Fees</p>
-                    <p className="text-2xl font-bold text-gray-900">${studentData?.fees.totalAmount.toFixed(2)}</p>
+                    <p className="text-sm text-[#666666]">Total Fees</p>
+                    <p className="text-2xl font-bold text-[#153D70]">${studentData?.fees.totalAmount.toFixed(2)}</p>
                   </div>
                   <div className="text-center">
                     <p className="text-sm text-gray-600">Amount Paid</p>
                     <p className="text-2xl font-bold text-green-600">${studentData?.fees.amountPaid.toFixed(2)}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-sm text-gray-600">Outstanding Balance</p>
-                    <p className="text-2xl font-bold text-red-600">${studentData?.fees.amountOwed.toFixed(2)}</p>
+                    <p className="text-sm text-[#666666]">Outstanding Balance</p>
+                    <p className="text-2xl font-bold text-[#DC3545]">${studentData?.fees.amountOwed.toFixed(2)}</p>
                   </div>
                 </div>
                 <div className="mt-4">
-                  <div className="flex justify-between text-sm text-gray-600 mb-2">
+                  <div className="flex justify-between text-sm text-[#666666] mb-2">
                     <span>Payment Progress</span>
                     <span>{((studentData?.fees.amountPaid / studentData?.fees.totalAmount) * 100).toFixed(1)}%</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-[#999999] rounded-full h-2">
                     <div
-                      className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                      className="bg-[#28A745] h-2 rounded-full transition-all duration-300"
                       style={{ width: `${(studentData?.fees.amountPaid / studentData?.fees.totalAmount) * 100}%` }}
                     ></div>
                   </div>
@@ -194,25 +194,13 @@ export default function Dashboard() {
           {/* Courses Tab */}
           {activeTab === 'courses' && (
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">My Enrolled Courses</h3>
+              <h3 className="text-lg font-medium text-[#153D70] mb-4">My Enrolled Courses</h3>
               {studentData?.courses.map((course) => (
-                <div key={course.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="text-lg font-medium text-gray-900">{course.name}</h4>
-                      <p className="text-sm text-gray-600">Course Code: {course.code}</p>
-                      <p className="text-sm text-gray-600">Lecturer: {course.lecturer.name}</p>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm text-gray-600">Progress</div>
-                      <div className="text-lg font-medium text-indigo-600">{course.progress}%</div>
-                      <div className="w-20 bg-gray-200 rounded-full h-2 mt-1">
-                        <div
-                          className="bg-indigo-600 h-2 rounded-full"
-                          style={{ width: `${course.progress}%` }}
-                        ></div>
-                      </div>
-                    </div>
+                <div key={course.id} className="border border-[#999999] rounded-lg p-4 bg-white">
+                  <div>
+                    <h4 className="text-lg font-medium text-[#153D70]">{course.name}</h4>
+                    <p className="text-sm text-[#666666]">Course Code: {course.code}</p>
+                    <p className="text-sm text-[#666666]">Lecturer: {course.lecturer.name}</p>
                   </div>
                 </div>
               ))}
@@ -222,16 +210,16 @@ export default function Dashboard() {
           {/* Lecturers Tab */}
           {activeTab === 'lecturers' && (
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">My Course Lecturers</h3>
+              <h3 className="text-lg font-medium text-[#153D70] mb-4">My Course Lecturers</h3>
               {studentData?.courses.map((course) => (
-                <div key={course.lecturer.id} className="border border-gray-200 rounded-lg p-4">
+                <div key={course.lecturer.id} className="border border-[#999999] rounded-lg p-4 bg-white">
                   <div className="flex justify-between items-center">
                     <div>
-                      <h4 className="text-lg font-medium text-gray-900">{course.lecturer.name}</h4>
-                      <p className="text-sm text-gray-600">{course.lecturer.email}</p>
-                      <p className="text-sm text-indigo-600">Teaching: {course.name}</p>
+                      <h4 className="text-lg font-medium text-[#153D70]">{course.lecturer.name}</h4>
+                      <p className="text-sm text-[#666666]">{course.lecturer.email}</p>
+                      <p className="text-sm text-[#BA8F4A]">Teaching: {course.name}</p>
                     </div>
-                    {/*<button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">*/}
+                    {/*<button className="bg-[#153D70] hover:bg-[#BA8F4A] text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">*/}
                     {/*  Contact*/}
                     {/*</button>*/}
                   </div>
