@@ -1,5 +1,6 @@
 package com.example.demo.models;
 
+import java.util.List;
 import java.util.Set;
 
 import jakarta.persistence.*;
@@ -20,8 +21,8 @@ public class Courses {
   private String name;
   private String code;
 
-  @ManyToMany(mappedBy = "courses")
-  private Set<Students> students;
+  @OneToMany(mappedBy = "course")
+  private List<CourseEnrollments> enrollments;
 
   @ManyToMany
   @JoinTable(
@@ -32,7 +33,7 @@ public class Courses {
   private Set<Lecturers> lecturers;
 
   @ManyToOne
-  @JoinTable(name="semester_id")
+  @JoinColumn(name="semester_id")
   private Semesters semester;
 
   public Courses(String name, String code){
